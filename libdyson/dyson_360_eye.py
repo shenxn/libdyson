@@ -41,7 +41,7 @@ class Dyson360Eye(DysonDevice):
         self._battery_level = None
 
     @property
-    def _device_type(self) -> str:
+    def device_type(self) -> str:
         return DEVICE_TYPE_360_EYE
 
     @property

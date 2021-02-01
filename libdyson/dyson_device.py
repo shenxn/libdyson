@@ -25,19 +25,29 @@ class DysonDevice():
         self._callbacks = []
 
     @property
+    def serial(self) -> str:
+        """Serial of the device."""
+        return self._serial
+
+    @property
+    def is_connected(self) -> bool:
+        """Whether MQTT connection is active."""
+        return self._connected.is_set()
+
+    @property
     @abstractmethod
-    def _device_type(self) -> str:
+    def device_type(self) -> str:
         """Device type."""
 
     @property
     def _status_topic(self) -> str:
         """MQTT status topic."""
-        return f"{self._device_type}/{self._serial}/status"
+        return f"{self.device_type}/{self._serial}/status"
 
     @property
     def _command_topic(self) -> str:
         """MQTT command topic."""
-        return f"{self._device_type}/{self._serial}/command"
+        return f"{self.device_type}/{self._serial}/command"
 
     @property
     @abstractmethod
@@ -71,24 +81,23 @@ class DysonDevice():
             _LOGGER.warning("Disconnect timed out")
         self._mqtt_client.loop_stop()
 
-    def register_callback(self, callback) -> None:
+    def add_message_listener(self, callback) -> None:
         self._callbacks.append(callback)
 
     def _on_connect(self, client: mqtt.Client, userdata: Any, flags, rc):
         # TODO: error handling
         client.subscribe(self._status_topic)
-        _LOGGER.info(f"Connected with result code {str(rc)}")
+        _LOGGER.debug(f"Connected with result code {str(rc)}")
         self._connected.set()
 
     def _on_disconnect(self, client, userdata, rc):
-        _LOGGER.info(f"Disconnected with result code {str(rc)}")
+        _LOGGER.debug(f"Disconnected with result code {str(rc)}")
         self._disconnected.set()
 
     def _on_message(self, client, userdata: Any, msg: mqtt.MQTTMessage):
-        print(f"{msg.topic} {str(msg.payload)}")
-        _LOGGER.debug(f"{msg.topic} {str(msg.payload)}")
         payload = json.loads(msg.payload.decode("utf-8"))
         if payload["msg"] in ["CURRENT-STATE", "STATE-CHANGE"]:
+            _LOGGER.debug(f"{msg.topic} {payload}")
             self._update_state(payload)
             if not self._state_data_available.is_set():
                 self._state_data_available.set()

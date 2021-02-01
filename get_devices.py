@@ -25,7 +25,7 @@ async def main():
             print()
             print(f"Serial: {device.serial}")
             print(f"Name: {device.name}")
-            print(f"Credentials: {device.credentials}")
+            print(f"credential: {device.credential}")
 
 
 loop = asyncio.get_event_loop()

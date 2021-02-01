@@ -15,9 +15,9 @@ _LOGGER = logging.getLogger(__name__)
 class DysonDevice():
     """Base class for dyson devices."""
 
-    def __init__(self, serial: str, credentials: str):
+    def __init__(self, serial: str, credential: str):
         self._serial = serial
-        self._credentials = credentials
+        self._credential = credential
         self._mqtt_client = None
         self._connected = threading.Event()
         self._disconnected = threading.Event()
@@ -57,7 +57,7 @@ class DysonDevice():
     def connect(self, host: str) -> None:
         self._disconnected.clear()
         self._mqtt_client = mqtt.Client(protocol=mqtt.MQTTv31)
-        self._mqtt_client.username_pw_set(self._serial, self._credentials)
+        self._mqtt_client.username_pw_set(self._serial, self._credential)
         self._mqtt_client.on_connect = self._on_connect
         self._mqtt_client.on_disconnect = self._on_disconnect
         self._mqtt_client.on_message = self._on_message

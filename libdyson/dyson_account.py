@@ -24,7 +24,7 @@ class DysonDeviceInfo():
         self.serial = raw["Serial"]
         self.name = raw["Name"]
         self.version = raw["Version"]
-        self.credentials = _decrypt_passwrd(raw["LocalCredentials"])
+        self.credential = _decrypt_passwrd(raw["LocalCredentials"])
         self.auto_update = raw["AutoUpdate"]
         self.new_version_available = raw["NewVersionAvailable"]
         self.product_type = raw["ProductType"]

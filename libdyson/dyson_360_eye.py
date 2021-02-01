@@ -31,8 +31,8 @@ class Dyson360EyePowerMode(Enum):
 
 class Dyson360Eye(DysonDevice):
 
-    def __init__(self, serial: str, credentials: str):
-        super().__init__(serial, credentials)
+    def __init__(self, serial: str, credential: str):
+        super().__init__(serial, credential)
         self._state = None
         self._power_mode = None
         self._full_clean_type = None

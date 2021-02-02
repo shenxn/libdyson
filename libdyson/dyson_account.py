@@ -1,10 +1,11 @@
 """Dyson cloud account."""
 import json
 import base64
-from typing import List, Optional
-from aiohttp.client import ClientSession
+import requests
+import urllib3
+from requests.auth import HTTPBasicAuth
+from typing import Dict, List, Optional
 from libdyson.exceptions import DysonLoginFailure, DysonNetworkError
-import aiohttp
 from Crypto.Cipher import AES
 
 DYSON_API_URL = "https://appapi.cp.dyson.com"
@@ -38,14 +39,12 @@ class DysonAccount:
         email: str,
         password: str,
         country: str,
-        aiohttp_sesison: Optional[aiohttp.ClientSession]=None,
     ):
         """Create a new Dyson account."""
         self._email = email
         self._password = password
         self._country = country
         self._auth = None
-        self._aiohttp_session = aiohttp_sesison
 
     @property
     def _url(self):
@@ -53,62 +52,64 @@ class DysonAccount:
             return DYSON_API_URL_CN
         return DYSON_API_URL
 
-    @property
-    def _session(self):
-        if self._aiohttp_session is not None:
-            return self._aiohttp_session
-        return aiohttp.ClientSession()
+    def _request(
+        self,
+        method: str,
+        path: str,
+        params: Optional[dict]=None,
+        data: Optional[dict]=None,
+        auth: bool=True,
+    ) -> requests.Response:
+        return requests.request(
+            method,
+            self._url + path,
+            params=params,
+            data=data,
+            headers=DYSON_API_HEADERS,
+            auth=self._auth if auth else None,
+            verify=False,
+        )
 
-    async def _async_close_session(self, session: aiohttp.ClientSession):
-        if self._aiohttp_session is None:
-            await session.close()
-
-    async def async_login(self) -> None:
+    def login(self) -> None:
         """Login to Dyson cloud account."""
-        session = self._session
+        # Disable insecure request warnings
+        # since Dyson uses a self signed certificate
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         try:
-            async with session.post(
-                f"{self._url}/v1/userregistration/authenticate",
+            response = self._request(
+                "POST",
+                "/v1/userregistration/authenticate",
                 params={"country": self._country},
                 data={
                     "Email": self._email,
                     "Password": self._password,
                 },
-                headers=DYSON_API_HEADERS,
-                verify_ssl=False,  # Dyson uses a self signed certificate
-            ) as response:
-                if response.ok:
-                    body = await response.json()
-                    self._auth = aiohttp.BasicAuth(
-                        body["Account"],
-                        body["Password"],
-                    )
-                else:
-                    raise DysonLoginFailure
-        except aiohttp.ClientError as err:
+                auth=False,
+            )
+            if response.status_code == requests.codes.ok:
+                body = response.json()
+                self._auth = HTTPBasicAuth(
+                    body["Account"],
+                    body["Password"],
+                )
+            else:
+                raise DysonLoginFailure
+        except requests.RequestException as err:
             raise DysonNetworkError from err
-        finally:
-            await self._async_close_session(session)
    
 
-    async def async_devices(self) -> List[DysonDeviceInfo]:
-        session = self._session
+    def devices(self) -> List[DysonDeviceInfo]:
         try:
             devices = []
-            async with session.get(
-                f"{self._url}/v1/provisioningservice/manifest",
-                auth=self._auth,
-                headers=DYSON_API_HEADERS,
-                verify_ssl=False,
-            ) as response:
-                for raw in await response.json():
-                    devices.append(DysonDeviceInfo(raw))
+            response = self._request(
+                "GET", "/v1/provisioningservice/manifest"
+            )
+            for raw in response.json():
+                devices.append(DysonDeviceInfo(raw))
             # TODO: v2 devices
             return devices
-        except aiohttp.ClientError as err:
+        except requests.RequestException as err:
             raise DysonNetworkError from err
-        finally:
-            await self._async_close_session(session)
 
 
 def _unpad(string):

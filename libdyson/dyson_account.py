@@ -106,7 +106,11 @@ class DysonAccount:
             )
             for raw in response.json():
                 devices.append(DysonDeviceInfo(raw))
-            # TODO: v2 devices
+            response = self._request(
+                "GET", "/v2/provisioningservice/manifes"
+            )
+            for raw in response.json():
+                devices.append(DysonDeviceInfo(raw))
             return devices
         except requests.RequestException as err:
             raise DysonNetworkError from err

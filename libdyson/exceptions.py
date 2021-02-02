@@ -1,5 +1,6 @@
 """Dyson Python library exceptions."""
 
+
 class DysonException(Exception):
     """Base class for exceptions."""
 

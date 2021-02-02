@@ -1,6 +1,6 @@
 """Dyson 360 Eye vacuum robot."""
-from enum import Enum, auto
-from typing import List, Optional, Tuple
+from enum import Enum
+from typing import Optional, Tuple
 
 from libdyson.const import DEVICE_TYPE_360_EYE
 from libdyson.dyson_device import DysonDevice
@@ -30,8 +30,10 @@ class Dyson360EyePowerMode(Enum):
 
 
 class Dyson360Eye(DysonDevice):
+    """Dyson 360 Eye device."""
 
     def __init__(self, serial: str, credential: str):
+        """Initialize the device."""
         super().__init__(serial, credential)
         self._state = None
         self._power_mode = None
@@ -42,6 +44,7 @@ class Dyson360Eye(DysonDevice):
 
     @property
     def device_type(self) -> str:
+        """Return the device type."""
         return DEVICE_TYPE_360_EYE
 
     @property
@@ -101,7 +104,7 @@ class Dyson360Eye(DysonDevice):
     def start(self) -> None:
         """Start cleaning."""
         self._send_command("START", {"fullCleanType": "immediate"})
-    
+
     def pause(self) -> None:
         """Pause cleaning."""
         self._send_command("PAUSE")

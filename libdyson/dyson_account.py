@@ -1,19 +1,21 @@
 """Dyson cloud account."""
-import json
 import base64
-import requests
-import urllib3
-from requests.auth import HTTPBasicAuth
-from typing import Dict, List, Optional
-from libdyson.exceptions import DysonLoginFailure, DysonNetworkError
+import json
+from typing import List, Optional
+
 from Crypto.Cipher import AES
+import requests
+from requests.auth import HTTPBasicAuth
+import urllib3
+
+from libdyson.exceptions import DysonLoginFailure, DysonNetworkError
 
 DYSON_API_URL = "https://appapi.cp.dyson.com"
 DYSON_API_URL_CN = "https://appapi.cp.dyson.cn"
 DYSON_API_HEADERS = {"User-Agent": "DysonLink/29019 CFNetwork/1188 Darwin/20.0.0"}
 
 
-class DysonDeviceInfo():
+class DysonDeviceInfo:
     """Dyson device info."""
 
     def __init__(self, raw):
@@ -56,9 +58,9 @@ class DysonAccount:
         self,
         method: str,
         path: str,
-        params: Optional[dict]=None,
-        data: Optional[dict]=None,
-        auth: bool=True,
+        params: Optional[dict] = None,
+        data: Optional[dict] = None,
+        auth: bool = True,
     ) -> requests.Response:
         return requests.request(
             method,
@@ -96,19 +98,15 @@ class DysonAccount:
                 raise DysonLoginFailure
         except requests.RequestException as err:
             raise DysonNetworkError from err
-   
 
     def devices(self) -> List[DysonDeviceInfo]:
+        """Get device info from cloud account."""
         try:
             devices = []
-            response = self._request(
-                "GET", "/v1/provisioningservice/manifest"
-            )
+            response = self._request("GET", "/v1/provisioningservice/manifest")
             for raw in response.json():
                 devices.append(DysonDeviceInfo(raw))
-            response = self._request(
-                "GET", "/v2/provisioningservice/manifes"
-            )
+            response = self._request("GET", "/v2/provisioningservice/manifes")
             for raw in response.json():
                 devices.append(DysonDeviceInfo(raw))
             return devices
@@ -118,15 +116,19 @@ class DysonAccount:
 
 def _unpad(string):
     """Un pad string."""
-    return string[:-ord(string[len(string) - 1:])]
+    return string[: -ord(string[len(string) - 1 :])]
 
 
 def _decrypt_passwrd(encrypted_password):
-    key = b'\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10' \
-          b'\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f '
-    init_vector = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
-                  b'\x00\x00\x00\x00'
+    key = (
+        b"\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10"
+        b"\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f "
+    )
+    init_vector = (
+        b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" b"\x00\x00\x00\x00"
+    )
     cipher = AES.new(key, AES.MODE_CBC, init_vector)
-    json_password = json.loads(_unpad(
-        cipher.decrypt(base64.b64decode(encrypted_password)).decode('utf-8')))
+    json_password = json.loads(
+        _unpad(cipher.decrypt(base64.b64decode(encrypted_password)).decode("utf-8"))
+    )
     return json_password["apPasswordHash"]

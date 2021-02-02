@@ -1,21 +1,24 @@
 """Dyson device."""
 from abc import abstractmethod
 from enum import Enum
-from typing import Any, List, Optional
 import json
-from libdyson.exceptions import DysonConnectTimeout, DysonNotConnected
 import logging
 import threading
 import time
+from typing import Any, List, Optional
+
 import paho.mqtt.client as mqtt
+
+from libdyson.exceptions import DysonConnectTimeout, DysonNotConnected
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class DysonDevice():
+class DysonDevice:
     """Base class for dyson devices."""
 
     def __init__(self, serial: str, credential: str):
+        """Initialize the device."""
         self._serial = serial
         self._credential = credential
         self._mqtt_client = None
@@ -26,7 +29,7 @@ class DysonDevice():
 
     @property
     def serial(self) -> str:
-        """Serial of the device."""
+        """Return the serial number of the device."""
         return self._serial
 
     @property
@@ -55,6 +58,7 @@ class DysonDevice():
         """MQTT message types that represents a state message."""
 
     def connect(self, host: str) -> None:
+        """Connect to the device MQTT broker."""
         self._disconnected.clear()
         self._mqtt_client = mqtt.Client(protocol=mqtt.MQTTv31)
         self._mqtt_client.username_pw_set(self._serial, self._credential)
@@ -75,6 +79,7 @@ class DysonDevice():
         raise DysonConnectTimeout
 
     def disconnect(self) -> None:
+        """Disconnect from the device."""
         self._connected.clear()
         self._mqtt_client.disconnect()
         if not self._disconnected.wait(timeout=10):
@@ -82,6 +87,7 @@ class DysonDevice():
         self._mqtt_client.loop_stop()
 
     def add_message_listener(self, callback) -> None:
+        """Add a callback to receive update notification."""
         self._callbacks.append(callback)
 
     def _on_connect(self, client: mqtt.Client, userdata: Any, flags, rc):
@@ -109,20 +115,20 @@ class DysonDevice():
         """Update the device state."""
 
     def _set_enum_attr(self, value: str, attr: str, enum: Enum) -> None:
-        """Helper function to update state based on enum."""
+        """Update state based on enum."""
         try:
             setattr(self, f"_{attr}", enum(value))
         except ValueError:
             _LOGGER.error("Unknown %s value %s", attr, value)
 
-    def _send_command(self, command: str, data: Optional[dict]=None):
+    def _send_command(self, command: str, data: Optional[dict] = None):
         if not self._connected.is_set():
             raise DysonNotConnected
         if data is None:
             data = {}
         payload = {
             "msg": command,
-            "time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            "time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         }
         payload.update(data)
         self._mqtt_client.publish(self._command_topic, json.dumps(payload))
@@ -133,6 +139,6 @@ class DysonDevice():
             raise DysonNotConnected
         payload = {
             "msg": "REQUEST-CURRENT-STATE",
-            "time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            "time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         }
         self._mqtt_client.publish(self._command_topic, json.dumps(payload))

@@ -10,7 +10,7 @@
 
 ## 0.1.0
 
-This is the first version of this library. Only Dyson 360 Eye robot vaccums are currently supported.
+This is the first version of this library. Only Dyson 360 Eye robot vacuums are currently supported.
 
 - Dyson 360 Eye robot vacuum support added.
 - Cloud account support added. 

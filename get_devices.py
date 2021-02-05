@@ -5,8 +5,8 @@ from libdyson import DysonAccount
 email = input("Email: ")
 password = getpass()
 country = input("Country: ")
-account = DysonAccount(country, email, password)
-account.login()
+account = DysonAccount(country)
+account.login(email, password)
 
 devices = account.devices()
 for device in devices:

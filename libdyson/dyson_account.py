@@ -39,13 +39,9 @@ class DysonAccount:
     def __init__(
         self,
         country: str,
-        email: Optional[str] = None,
-        password: Optional[str] = None,
         auth_info: Optional[dict] = None,
     ):
         """Create a new Dyson account."""
-        self._email = email
-        self._password = password
         self._country = country
         self._auth_info = auth_info
         self._auth = None
@@ -87,7 +83,7 @@ class DysonAccount:
             verify=False,
         )
 
-    def login(self) -> None:
+    def login(self, email: str, password: str) -> None:
         """Login to Dyson cloud account."""
         # Disable insecure request warnings
         # since Dyson uses a self signed certificate
@@ -98,8 +94,8 @@ class DysonAccount:
                 "/v1/userregistration/authenticate",
                 params={"country": self._country},
                 data={
-                    "Email": self._email,
-                    "Password": self._password,
+                    "Email": email,
+                    "Password": password,
                 },
                 auth=False,
             )

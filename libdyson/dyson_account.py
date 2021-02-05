@@ -38,21 +38,36 @@ class DysonAccount:
 
     def __init__(
         self,
-        email: str,
-        password: str,
         country: str,
+        email: Optional[str] = None,
+        password: Optional[str] = None,
+        auth_info: Optional[dict] = None,
     ):
         """Create a new Dyson account."""
         self._email = email
         self._password = password
         self._country = country
+        self._auth_info = auth_info
         self._auth = None
+        if auth_info is not None:
+            self._set_auth()
 
     @property
-    def _url(self):
+    def _url(self) -> str:
         if self._country == "CN":
             return DYSON_API_URL_CN
         return DYSON_API_URL
+
+    @property
+    def auth_info(self) -> Optional[dict]:
+        """Return the authentication info."""
+        return self._auth_info
+
+    def _set_auth(self) -> None:
+        self._auth = HTTPBasicAuth(
+            self.auth_info["Account"],
+            self.auth_info["Password"],
+        )
 
     def _request(
         self,
@@ -90,10 +105,8 @@ class DysonAccount:
             )
             if response.status_code == requests.codes.ok:
                 body = response.json()
-                self._auth = HTTPBasicAuth(
-                    body["Account"],
-                    body["Password"],
-                )
+                self._auth_info = body
+                self._set_auth()
             else:
                 raise DysonLoginFailure
         except requests.RequestException as err:

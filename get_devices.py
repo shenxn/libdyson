@@ -1,11 +1,11 @@
 from getpass import getpass
-from libdyson import DysonAccount
 
+from libdyson import DysonAccount
 
 email = input("Email: ")
 password = getpass()
 country = input("Country: ")
-account = DysonAccount(email, password, country)
+account = DysonAccount(country, email, password)
 account.login()
 
 devices = account.devices()

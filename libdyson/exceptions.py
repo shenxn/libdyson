@@ -19,3 +19,11 @@ class DysonConnectTimeout(DysonException):
 
 class DysonNotConnected(DysonException):
     """Represents mqtt not connected."""
+
+
+class DysonInvalidCredential(DysonException):
+    """Requesents invalid mqtt credential."""
+
+
+class DysonConnectionRefused(DysonException):
+    """Represents mqtt connection refused by the server."""

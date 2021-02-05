@@ -9,7 +9,12 @@ from typing import Any, List, Optional
 
 import paho.mqtt.client as mqtt
 
-from libdyson.exceptions import DysonConnectTimeout, DysonNotConnected
+from libdyson.exceptions import (
+    DysonConnectionRefused,
+    DysonConnectTimeout,
+    DysonInvalidCredential,
+    DysonNotConnected,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -62,12 +67,30 @@ class DysonDevice:
         self._disconnected.clear()
         self._mqtt_client = mqtt.Client(protocol=mqtt.MQTTv31)
         self._mqtt_client.username_pw_set(self._serial, self._credential)
-        self._mqtt_client.on_connect = self._on_connect
+        error = None
+
+        def _on_connect(client: mqtt.Client, userdata: Any, flags, rc):
+            _LOGGER.debug(f"Connected with result code {str(rc)}")
+            nonlocal error
+            if rc == 4:
+                error = DysonInvalidCredential
+            elif rc != 0:
+                error = DysonConnectionRefused
+            else:
+                client.subscribe(self._status_topic)
+            self._connected.set()
+
+        self._mqtt_client.on_connect = _on_connect
         self._mqtt_client.on_disconnect = self._on_disconnect
         self._mqtt_client.on_message = self._on_message
         self._mqtt_client.connect_async(host)
         self._mqtt_client.loop_start()
         if self._connected.wait(timeout=10):
+            if error is not None:
+                self._mqtt_client.loop_stop()
+                self._connected.clear()
+                raise error
+
             _LOGGER.info("Connected to device %s", self._serial)
             self.request_current_state()
 
@@ -89,12 +112,6 @@ class DysonDevice:
     def add_message_listener(self, callback) -> None:
         """Add a callback to receive update notification."""
         self._callbacks.append(callback)
-
-    def _on_connect(self, client: mqtt.Client, userdata: Any, flags, rc):
-        # TODO: error handling
-        client.subscribe(self._status_topic)
-        _LOGGER.debug(f"Connected with result code {str(rc)}")
-        self._connected.set()
 
     def _on_disconnect(self, client, userdata, rc):
         _LOGGER.debug(f"Disconnected with result code {str(rc)}")

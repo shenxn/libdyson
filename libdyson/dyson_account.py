@@ -14,6 +14,10 @@ DYSON_API_URL = "https://appapi.cp.dyson.com"
 DYSON_API_URL_CN = "https://appapi.cp.dyson.cn"
 DYSON_API_HEADERS = {"User-Agent": "DysonLink/29019 CFNetwork/1188 Darwin/20.0.0"}
 
+# Disable insecure request warnings
+# since Dyson uses a self signed certificate
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 class DysonDeviceInfo:
     """Dyson device info."""
@@ -85,9 +89,6 @@ class DysonAccount:
 
     def login(self, email: str, password: str) -> None:
         """Login to Dyson cloud account."""
-        # Disable insecure request warnings
-        # since Dyson uses a self signed certificate
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         try:
             response = self._request(
                 "POST",

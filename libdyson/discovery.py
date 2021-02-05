@@ -79,3 +79,13 @@ class DysonListener:
         """Add a new service."""
         info = zeroconf.get_service_info(type, name)
         self._dyson_discovery.device_discovered(info)
+
+    def update_service(self, zeroconf: Zeroconf, type: str, name: str) -> None:
+        """Update a service."""
+        # Currently not doing anything
+        pass
+
+    def remove_service(self, zeroconf: Zeroconf, type: str, name: str) -> None:
+        """Remove a service."""
+        # Currently not doing anything
+        pass

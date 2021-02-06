@@ -4,17 +4,17 @@ from enum import Enum
 import json
 import logging
 import threading
-import time
 from typing import Any, List, Optional
 
 import paho.mqtt.client as mqtt
 
-from libdyson.exceptions import (
+from .exceptions import (
     DysonConnectionRefused,
     DysonConnectTimeout,
     DysonInvalidCredential,
     DysonNotConnected,
 )
+from .utils import mqtt_time
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,9 +48,9 @@ class DysonDevice:
         """Device type."""
 
     @property
+    @abstractmethod
     def _status_topic(self) -> str:
         """MQTT status topic."""
-        return f"{self.device_type}/{self._serial}/status"
 
     @property
     def _command_topic(self) -> str:
@@ -70,7 +70,7 @@ class DysonDevice:
         error = None
 
         def _on_connect(client: mqtt.Client, userdata: Any, flags, rc):
-            _LOGGER.debug(f"Connected with result code {str(rc)}")
+            _LOGGER.debug("Connected with result code %d", rc)
             nonlocal error
             if rc == 4:
                 error = DysonInvalidCredential
@@ -97,6 +97,8 @@ class DysonDevice:
             # Wait for first data
             if self._state_data_available.wait(timeout=10):
                 return
+            else:
+                self.disconnect()
 
         self._mqtt_client.loop_stop()
         raise DysonConnectTimeout
@@ -120,7 +122,7 @@ class DysonDevice:
     def _on_message(self, client, userdata: Any, msg: mqtt.MQTTMessage):
         payload = json.loads(msg.payload.decode("utf-8"))
         if payload["msg"] in ["CURRENT-STATE", "STATE-CHANGE"]:
-            _LOGGER.debug(f"{msg.topic} {payload}")
+            _LOGGER.debug("%s %s", msg.topic, msg.payload)
             self._update_state(payload)
             if not self._state_data_available.is_set():
                 self._state_data_available.set()
@@ -139,23 +141,23 @@ class DysonDevice:
             _LOGGER.error("Unknown %s value %s", attr, value)
 
     def _send_command(self, command: str, data: Optional[dict] = None):
-        if not self._connected.is_set():
+        if not self.is_connected:
             raise DysonNotConnected
         if data is None:
             data = {}
         payload = {
             "msg": command,
-            "time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "time": mqtt_time(),
         }
         payload.update(data)
         self._mqtt_client.publish(self._command_topic, json.dumps(payload))
 
     def request_current_state(self):
         """Request new state message."""
-        if not self._connected.is_set():
+        if not self.is_connected:
             raise DysonNotConnected
         payload = {
             "msg": "REQUEST-CURRENT-STATE",
-            "time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "time": mqtt_time(),
         }
         self._mqtt_client.publish(self._command_topic, json.dumps(payload))

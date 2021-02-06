@@ -48,6 +48,11 @@ class Dyson360Eye(DysonDevice):
         return DEVICE_TYPE_360_EYE
 
     @property
+    def _status_topic(self) -> str:
+        """MQTT status topic."""
+        return f"{self.device_type}/{self._serial}/status"
+
+    @property
     def state(self) -> Optional[Dyson360EyeState]:
         """State of the device."""
         return self._state

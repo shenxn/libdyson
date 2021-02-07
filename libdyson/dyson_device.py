@@ -8,6 +8,8 @@ from typing import Any, List, Optional
 
 import paho.mqtt.client as mqtt
 
+from libdyson.const import MessageType
+
 from .exceptions import (
     DysonConnectionRefused,
     DysonConnectTimeout,
@@ -115,22 +117,27 @@ class DysonDevice:
         """Add a callback to receive update notification."""
         self._callbacks.append(callback)
 
+    # TODO: remove_message_listener
+
     def _on_disconnect(self, client, userdata, rc):
         _LOGGER.debug(f"Disconnected with result code {str(rc)}")
         self._disconnected.set()
 
     def _on_message(self, client, userdata: Any, msg: mqtt.MQTTMessage):
         payload = json.loads(msg.payload.decode("utf-8"))
+        self._handle_message(payload)
+
+    def _handle_message(self, payload: dict) -> None:
         if payload["msg"] in ["CURRENT-STATE", "STATE-CHANGE"]:
-            _LOGGER.debug("%s %s", msg.topic, msg.payload)
+            _LOGGER.debug("New state: %s", payload)
             self._update_state(payload)
             if not self._state_data_available.is_set():
                 self._state_data_available.set()
             for callback in self._callbacks:
-                callback()
+                callback(MessageType.STATE)
 
     @abstractmethod
-    def _update_state(self, data: dict) -> None:
+    def _update_state(self, payload: dict) -> None:
         """Update the device state."""
 
     def _set_enum_attr(self, value: str, attr: str, enum: Enum) -> None:

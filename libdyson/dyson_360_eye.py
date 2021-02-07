@@ -92,19 +92,19 @@ class Dyson360Eye(DysonDevice):
             Dyson360EyeState.FULL_CLEAN_CHARGING,
         ]
 
-    def _update_state(self, data: dict) -> None:
-        state = data["state"] if "state" in data else data["newstate"]
+    def _update_state(self, payload: dict) -> None:
+        state = payload["state"] if "state" in payload else payload["newstate"]
         self._set_enum_attr(state, "state", Dyson360EyeState)
         self._set_enum_attr(
-            data["currentVacuumPowerMode"],
+            payload["currentVacuumPowerMode"],
             "power_mode",
             Dyson360EyePowerMode,
         )
-        self._full_clean_type = data["fullCleanType"]
-        self._clean_id = data["cleanId"]
-        self._battery_level = data["batteryChargeLevel"]
-        if "globalPosition" in data and len(data["globalPosition"]) == 2:
-            self._position = tuple(data["globalPosition"])
+        self._full_clean_type = payload["fullCleanType"]
+        self._clean_id = payload["cleanId"]
+        self._battery_level = payload["batteryChargeLevel"]
+        if "globalPosition" in payload and len(payload["globalPosition"]) == 2:
+            self._position = tuple(payload["globalPosition"])
 
     def start(self) -> None:
         """Start cleaning."""

@@ -3,7 +3,7 @@
 import json
 
 from libdyson.const import AirQualityTarget, FanMode, FanSpeed
-from libdyson.exceptions import DysonException, DysonNotConnected
+from libdyson.exceptions import DysonNotConnected
 
 from .dyson_device import DysonDevice
 from .utils import mqtt_time
@@ -120,11 +120,12 @@ class DysonPureCoolLink(DysonDevice):
         """Turn off the device."""
         self._set_configuration(fmod="OFF")
 
-    def set_speed(self, speed: int) -> None:
+    def set_speed(self, speed: FanSpeed) -> None:
         """Set manual speed."""
-        if speed < 1 or speed > 10:
-            raise DysonException("Invalid speed %s", speed)
-        self._set_configuration(fmod="FAN", fnsp="%04d" % speed)
+        if speed == FanSpeed.SPEED_AUTO:
+            self.set_auto_mode(True)
+            return
+        self._set_configuration(fmod="FAN", fnsp=speed.value)
 
     def set_auto_mode(self, auto_mode: bool) -> None:
         """Turn on/off auto mode."""

@@ -5,7 +5,7 @@ from typing import Optional
 from libdyson.const import (
     DEVICE_TYPE_360_EYE,
     DEVICE_TYPE_PURE_COOL_LINK_DESK,
-    DEVICE_TYPE_PURE_COOL_LINK_TOUR,
+    DEVICE_TYPE_PURE_COOL_LINK_TOWER,
 )
 
 from .dyson_360_eye import Dyson360Eye
@@ -22,7 +22,7 @@ def get_device(serial: str, credential: str, device_type: str) -> Optional[Dyson
         return Dyson360Eye(serial, credential)
     if device_type in [
         DEVICE_TYPE_PURE_COOL_LINK_DESK,
-        DEVICE_TYPE_PURE_COOL_LINK_TOUR,
+        DEVICE_TYPE_PURE_COOL_LINK_TOWER,
     ]:
         return DysonPureCoolLink(serial, credential, device_type)
     return None

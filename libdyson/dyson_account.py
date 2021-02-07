@@ -1,12 +1,12 @@
 """Dyson cloud account."""
 import base64
 import json
+import pathlib
 from typing import List, Optional
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import requests
 from requests.auth import HTTPBasicAuth
-import urllib3
 
 from libdyson.exceptions import DysonLoginFailure, DysonNetworkError
 
@@ -14,9 +14,10 @@ DYSON_API_URL = "https://appapi.cp.dyson.com"
 DYSON_API_URL_CN = "https://appapi.cp.dyson.cn"
 DYSON_API_HEADERS = {"User-Agent": "DysonLink/29019 CFNetwork/1188 Darwin/20.0.0"}
 
-# Disable insecure request warnings
-# since Dyson uses a self signed certificate
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+FILE_PATH = pathlib.Path(__file__).parent.absolute()
+
+DYSON_CERT = f"{FILE_PATH}/certs/Rest_of_the_world_production.crt"
+DYSON_CERT_CN = f"{FILE_PATH}/certs/China_production.crt"
 
 
 class DysonDeviceInfo:
@@ -53,12 +54,6 @@ class DysonAccount:
             self._set_auth()
 
     @property
-    def _url(self) -> str:
-        if self._country == "CN":
-            return DYSON_API_URL_CN
-        return DYSON_API_URL
-
-    @property
     def auth_info(self) -> Optional[dict]:
         """Return the authentication info."""
         return self._auth_info
@@ -77,14 +72,19 @@ class DysonAccount:
         data: Optional[dict] = None,
         auth: bool = True,
     ) -> requests.Response:
+        if self._country == "CN":
+            url = DYSON_API_URL_CN
+        else:
+            url = DYSON_API_URL
+        cert = f"{FILE_PATH}/certs/DigiCert-chain.crt"
         return requests.request(
             method,
-            self._url + path,
+            url + path,
             params=params,
             data=data,
             headers=DYSON_API_HEADERS,
             auth=self._auth if auth else None,
-            verify=False,
+            verify=cert,
         )
 
     def login(self, email: str, password: str) -> None:

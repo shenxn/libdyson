@@ -30,14 +30,15 @@ class MockedMQTT:
         self._protocol = protocol
         self._username = None
         self._password = None
-        self._host = None
 
         self.on_connect = None
         self.on_disconnect = None
         self.on_message = None
 
         self._subscribed = False
+        self.connected = False
         self.commands = []
+        self.loop_started = False
 
         return self
 
@@ -48,27 +49,30 @@ class MockedMQTT:
 
     def connect_async(self, host: str) -> None:
         """Connect to the server asynchronously."""
-        self._host = host
-
-    def disconnect(self) -> None:
-        """Disconnect from the server."""
-        self.on_disconnect(self, None, 0)
-
-    def loop_start(self) -> None:
-        """Start loop."""
-        if self._host != self._expected_host:
+        if host != self._expected_host:
             return
         if (
             self._username == self._expected_username
             and self._password == self._expected_password
         ):
+            self.connected = True
             self.on_connect(self, None, None, 0)
         else:
             self.on_connect(self, None, None, 4)
             self.on_disconnect(self, None, 5)
 
+    def disconnect(self) -> None:
+        """Disconnect from the server."""
+        self.connected = False
+        self.on_disconnect(self, None, 0)
+
+    def loop_start(self) -> None:
+        """Start loop."""
+        self.loop_started = True
+
     def loop_stop(self) -> None:
         """Stop loop."""
+        self.loop_started = False
 
     def subscribe(self, topic: str) -> None:
         """Subscribe to a topic."""

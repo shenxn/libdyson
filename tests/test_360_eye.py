@@ -6,11 +6,8 @@ import pytest
 from libdyson import DEVICE_TYPE_360_EYE
 from libdyson.dyson_360_eye import Dyson360Eye, Dyson360EyePowerMode, Dyson360EyeState
 
+from . import CREDENTIAL, HOST, SERIAL
 from .mocked_mqtt import MockedMQTT
-
-HOST = "192.168.1.10"
-SERIAL = "JH1-US-HBB1111A"
-CREDENTIAL = "aoWJM1kpL79MN2dPMlL5ysQv/APG+HAv+x3HDk0yuT3gMfgA3mLuil4O3d+q6CcyU+D1Hoir38soKoZHshYFeQ=="
 
 STATUS = {
     "state": "INACTIVE_CHARGED",
@@ -34,9 +31,7 @@ def mqtt_client() -> MockedMQTT:
         f"{DEVICE_TYPE_360_EYE}/{SERIAL}/status",
         STATUS,
     )
-    with patch("libdyson.dyson_device.mqtt.Client", mocked_mqtt.refersh), patch(
-        "libdyson.dyson_device.CONNECT_TIMEOUT", 0
-    ):
+    with patch("libdyson.dyson_device.mqtt.Client", mocked_mqtt.refersh):
         yield mocked_mqtt
 
 

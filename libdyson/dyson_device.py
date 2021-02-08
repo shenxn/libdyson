@@ -4,7 +4,7 @@ from enum import Enum
 import json
 import logging
 import threading
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 import paho.mqtt.client as mqtt
 
@@ -20,7 +20,7 @@ from .utils import mqtt_time
 
 _LOGGER = logging.getLogger(__name__)
 
-CONNECT_TIMEOUT = 10
+TIMEOUT = 10
 
 
 class DysonDevice:
@@ -61,11 +61,6 @@ class DysonDevice:
         """MQTT command topic."""
         return f"{self.device_type}/{self._serial}/command"
 
-    @property
-    @abstractmethod
-    def _state_types(self) -> List[str]:
-        """MQTT message types that represents a state message."""
-
     def connect(self, host: str) -> None:
         """Connect to the device MQTT broker."""
         self._disconnected.clear()
@@ -89,7 +84,7 @@ class DysonDevice:
         self._mqtt_client.on_message = self._on_message
         self._mqtt_client.connect_async(host)
         self._mqtt_client.loop_start()
-        if self._connected.wait(timeout=CONNECT_TIMEOUT):
+        if self._connected.wait(timeout=TIMEOUT):
             if error is not None:
                 self._mqtt_client.loop_stop()
                 self._connected.clear()
@@ -99,7 +94,7 @@ class DysonDevice:
             self.request_current_state()
 
             # Wait for first data
-            if self._state_data_available.wait(timeout=CONNECT_TIMEOUT):
+            if self._state_data_available.wait(timeout=TIMEOUT):
                 return
             else:
                 self.disconnect()
@@ -111,7 +106,7 @@ class DysonDevice:
         """Disconnect from the device."""
         self._connected.clear()
         self._mqtt_client.disconnect()
-        if not self._disconnected.wait(timeout=10):
+        if not self._disconnected.wait(timeout=TIMEOUT):
             _LOGGER.warning("Disconnect timed out")
         self._mqtt_client.loop_stop()
 

@@ -37,6 +37,7 @@ repos:
         args:
           - --quiet
           - --format=custom
+          - --configfile=bandit.yaml
         files: ^(libdyson|tests)/.+\.py$
   - repo: https://github.com/PyCQA/isort
     rev: 5.5.3

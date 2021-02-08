@@ -13,4 +13,5 @@ for device in devices:
     print()
     print(f"Serial: {device.serial}")
     print(f"Name: {device.name}")
-    print(f"credential: {device.credential}")
+    print(f"Device Type: {device.product_type}")
+    print(f"Credential: {device.credential}")

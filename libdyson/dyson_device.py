@@ -117,7 +117,10 @@ class DysonDevice:
         """Add a callback to receive update notification."""
         self._callbacks.append(callback)
 
-    # TODO: remove_message_listener
+    def remove_message_listener(self, callback) -> None:
+        """Remove an existed callback."""
+        if callback in self._callbacks:
+            self._callbacks.remove(callback)
 
     def _on_disconnect(self, client, userdata, rc):
         _LOGGER.debug(f"Disconnected with result code {str(rc)}")

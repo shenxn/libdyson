@@ -83,9 +83,7 @@ class DysonListener:
     def update_service(self, zeroconf: Zeroconf, type: str, name: str) -> None:
         """Update a service."""
         # Currently not doing anything
-        pass
 
     def remove_service(self, zeroconf: Zeroconf, type: str, name: str) -> None:
         """Remove a service."""
         # Currently not doing anything
-        pass

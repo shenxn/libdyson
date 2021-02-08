@@ -8,6 +8,7 @@ from .const import (
     DEVICE_TYPE_PURE_COOL_LINK_TOWER,
 )
 from .const import MessageType  # noqa: F401
+from .discovery import DysonDiscovery  # noqa: F401
 from .dyson_360_eye import Dyson360Eye
 from .dyson_360_eye import Dyson360EyePowerMode  # noqa: F401
 from .dyson_360_eye import Dyson360EyeState  # noqa: F401

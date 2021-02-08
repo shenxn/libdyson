@@ -6,7 +6,7 @@ import pytest
 from libdyson import DEVICE_TYPE_360_EYE
 from libdyson.dyson_360_eye import Dyson360Eye, Dyson360EyePowerMode, Dyson360EyeState
 
-from .mocked_mqtt import get_mocked_mqtt
+from .mocked_mqtt import MockedMQTT
 
 HOST = "192.168.1.10"
 SERIAL = "JH1-US-HBB1111A"
@@ -24,9 +24,9 @@ STATUS = {
 
 
 @pytest.fixture(autouse=True)
-def mqtt_client():
+def mqtt_client() -> MockedMQTT:
     """Return mocked mqtt client."""
-    mocked_mqtt = get_mocked_mqtt(
+    mocked_mqtt = MockedMQTT(
         HOST,
         SERIAL,
         CREDENTIAL,
@@ -34,13 +34,13 @@ def mqtt_client():
         f"{DEVICE_TYPE_360_EYE}/{SERIAL}/status",
         STATUS,
     )
-    with patch("libdyson.dyson_device.mqtt.Client", mocked_mqtt), patch(
+    with patch("libdyson.dyson_device.mqtt.Client", mocked_mqtt.refersh), patch(
         "libdyson.dyson_device.CONNECT_TIMEOUT", 0
     ):
         yield mocked_mqtt
 
 
-def test_properties(mqtt_client):
+def test_properties(mqtt_client: MockedMQTT):
     """Test properties of 360 Eye."""
     device = Dyson360Eye(SERIAL, CREDENTIAL)
 
@@ -74,7 +74,7 @@ def test_properties(mqtt_client):
         "globalPosition": [-3, 50],
         "batteryChargeLevel": 30,
     }
-    mqtt_client.instance.state_change(new_status)
+    mqtt_client.state_change(new_status)
     assert device.state == Dyson360EyeState.FULL_CLEAN_RUNNING
     assert device.full_clean_type == "immediate"
     assert device.clean_id == clean_id
@@ -106,7 +106,7 @@ def test_properties(mqtt_client):
     ],
 )
 def test_command(
-    mqtt_client, command: str, command_args: list, msg: str, msg_data: dict
+    mqtt_client: MockedMQTT, command: str, command_args: list, msg: str, msg_data: dict
 ):
     """Test commands of 360 Eye."""
     device = Dyson360Eye(SERIAL, CREDENTIAL)
@@ -114,8 +114,8 @@ def test_command(
 
     func = getattr(device, command)
     func(*command_args)
-    len(mqtt_client.instance.commands) == 1
-    payload = mqtt_client.instance.commands[0]
+    len(mqtt_client.commands) == 1
+    payload = mqtt_client.commands[0]
     assert payload.pop("msg") == msg
     payload.pop("time")
     assert payload == msg_data

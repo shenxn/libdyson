@@ -89,6 +89,7 @@ class Dyson360Eye(DysonDevice):
             return None
         return self.state in [
             Dyson360EyeState.INACTIVE_CHARGING,
+            Dyson360EyeState.INACTIVE_CHARGED,
             Dyson360EyeState.FULL_CLEAN_CHARGING,
         ]
 

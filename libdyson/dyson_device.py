@@ -20,6 +20,8 @@ from .utils import mqtt_time
 
 _LOGGER = logging.getLogger(__name__)
 
+CONNECT_TIMEOUT = 10
+
 
 class DysonDevice:
     """Base class for dyson devices."""
@@ -87,7 +89,7 @@ class DysonDevice:
         self._mqtt_client.on_message = self._on_message
         self._mqtt_client.connect_async(host)
         self._mqtt_client.loop_start()
-        if self._connected.wait(timeout=10):
+        if self._connected.wait(timeout=CONNECT_TIMEOUT):
             if error is not None:
                 self._mqtt_client.loop_stop()
                 self._connected.clear()
@@ -97,7 +99,7 @@ class DysonDevice:
             self.request_current_state()
 
             # Wait for first data
-            if self._state_data_available.wait(timeout=10):
+            if self._state_data_available.wait(timeout=CONNECT_TIMEOUT):
                 return
             else:
                 self.disconnect()

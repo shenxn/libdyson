@@ -7,7 +7,7 @@ import threading
 from libdyson.const import AirQualityTarget, FanMode, FanSpeed, MessageType
 from libdyson.exceptions import DysonNotConnected
 
-from .dyson_device import DysonDevice
+from .dyson_device import TIMEOUT, DysonDevice
 from .utils import mqtt_time
 
 _LOGGER = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ class DysonPureCoolLink(DysonDevice):
         self._humdity = None
         self._temperature = None
         self._volatil_organic_compounds = None
-        self._dust = None
+        self._particulars = None
         self._sleep_timer = None
 
     @property
@@ -105,9 +105,14 @@ class DysonPureCoolLink(DysonDevice):
         return self._temperature
 
     @property
-    def dust(self) -> int:
-        """Return dust level in unknown unit."""
-        return self._dust
+    def particulars(self) -> int:
+        """Return particulars in unknown unit."""
+        return self._particulars
+
+    @property
+    def volatil_organic_compounds(self) -> int:
+        """Return VOCs in unknown unit."""
+        return self._volatil_organic_compounds
 
     @property
     def sleep_timer(self) -> int:
@@ -160,7 +165,10 @@ class DysonPureCoolLink(DysonDevice):
         self._temperature = self._get_environmental_field_value(
             data, "tact", divisor=10
         )
-        self._dust = self._get_environmental_field_value(data, "pact")
+        self._particulars = self._get_environmental_field_value(data, "pact")
+        self._volatil_organic_compounds = self._get_environmental_field_value(
+            data, "vact"
+        )
         self._sleep_timer = self._get_environmental_field_value(data, "sltm")
 
     def _set_configuration(self, **kwargs: dict) -> None:
@@ -175,6 +183,16 @@ class DysonPureCoolLink(DysonDevice):
             }
         )
         self._mqtt_client.publish(self._command_topic, payload, 1)
+
+    def _request_first_data(self) -> bool:
+        """Request and wait for first data."""
+        self.request_current_state()
+        self.request_environmental_state()
+        state_available = self._state_data_available.wait(timeout=TIMEOUT)
+        environmental_available = self._environmental_data_available.wait(
+            timeout=TIMEOUT
+        )
+        return state_available and environmental_available
 
     def request_environmental_state(self):
         """Request environmental state."""
@@ -219,7 +237,7 @@ class DysonPureCoolLink(DysonDevice):
     def set_standby_monitoring(self, standby_monitoring: bool) -> None:
         """Turn on/off standby monitoring."""
         self._set_configuration(
-            fmod=self._fan_mode,
+            fmod=self._fan_mode.value,  # Seems fmod is required to make this work
             rhtm=self._bool_to_param(standby_monitoring),
         )
 

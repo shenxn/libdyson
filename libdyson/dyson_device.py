@@ -61,6 +61,11 @@ class DysonDevice:
         """MQTT command topic."""
         return f"{self.device_type}/{self._serial}/command"
 
+    def _request_first_data(self) -> bool:
+        """Request and wait for first data."""
+        self.request_current_state()
+        return self._state_data_available.wait(timeout=TIMEOUT)
+
     def connect(self, host: str) -> None:
         """Connect to the device MQTT broker."""
         self._disconnected.clear()
@@ -91,13 +96,11 @@ class DysonDevice:
                 raise error
 
             _LOGGER.info("Connected to device %s", self._serial)
-            self.request_current_state()
-
-            # Wait for first data
-            if self._state_data_available.wait(timeout=TIMEOUT):
+            if self._request_first_data():
                 return
-            else:
-                self.disconnect()
+
+            # Close connection if connected but failed to get data
+            self.disconnect()
 
         self._mqtt_client.loop_stop()
         raise DysonConnectTimeout

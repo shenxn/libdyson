@@ -1,6 +1,6 @@
 """Test DysonDevice functionalities."""
 from enum import Enum
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -49,6 +49,7 @@ class _TestDevice(DysonDevice):
 
     def _update_state(self, payload: dict) -> None:
         payload.pop("msg")
+        payload.pop("time")
         self.status = payload
         self._set_enum_attr(payload["key1"], "key1", _TestEnum)
         self._set_enum_attr(payload["key2"], "key2", _TestEnum)
@@ -174,14 +175,9 @@ def test_not_connected():
 
 def test_status_update(mqtt_client: MockedMQTT):
     """Test status update."""
-    last_message_type = None
-
-    def _listener(message_type: MessageType) -> None:
-        nonlocal last_message_type
-        last_message_type = message_type
-
     device = _TestDevice(SERIAL, CREDENTIAL)
-    device.add_message_listener(_listener)
+    callback = MagicMock()
+    device.add_message_listener(callback)
     device.connect(HOST)
 
     # Data updated
@@ -189,9 +185,9 @@ def test_status_update(mqtt_client: MockedMQTT):
     assert device._key1 == _TestEnum.VALUE1
     assert device._key2 == _TestEnum.VALUE2
     assert device._key3 is None  # Unknown value
-    assert last_message_type == MessageType.STATE
+    callback.assert_called_once_with(MessageType.STATE)
+    callback.reset_mock()
 
-    last_message_type = None
     new_status = {
         "key1": "V1",
         "key2": "V1",
@@ -202,10 +198,10 @@ def test_status_update(mqtt_client: MockedMQTT):
     assert device._key1 == _TestEnum.VALUE1
     assert device._key2 == _TestEnum.VALUE1
     assert device._key3 == _TestEnum.VALUE1
-    assert last_message_type == MessageType.STATE
+    callback.assert_called_once_with(MessageType.STATE)
+    callback.reset_mock()
 
     # Remove callback
-    last_message_type = None
-    device.remove_message_listener(_listener)
+    device.remove_message_listener(callback)
     mqtt_client.state_change(new_status)
-    assert last_message_type is None
+    callback.assert_not_called()

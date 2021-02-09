@@ -1,5 +1,7 @@
 # Dyson Python Library
 
+[![codecov](https://codecov.io/gh/shenxn/libdyson/branch/main/graph/badge.svg?token=v2OypI2WaI)](https://codecov.io/gh/shenxn/libdyson)
+
 This library is still under development.
 
 This library is a refactor of [libpurecool](https://github.com/etheralm/libpurecool). There is going to be some major changes:

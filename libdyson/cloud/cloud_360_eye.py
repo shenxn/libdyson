@@ -1,11 +1,19 @@
 """Dyson 360 Eye cloud client."""
 
 from datetime import datetime, timedelta
+from enum import Enum
 from typing import List, Optional
 
 import attr
 
 from .cloud_device import DysonCloudDevice
+
+
+class CleaningType(Enum):
+    """Cleaning type of the task."""
+
+    Immediate = "Immediate"
+    Scheduled = "Scheduled"
 
 
 @attr.s(auto_attribs=True, frozen=True)
@@ -29,7 +37,7 @@ class CleaningTask:
             datetime.fromisoformat(raw["Finished"]),
             raw["Area"],
             raw["Charges"],
-            raw["Type"],
+            CleaningType(raw["Type"]),
             raw["IsInterim"],
         )
 

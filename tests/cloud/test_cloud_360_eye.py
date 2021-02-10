@@ -6,7 +6,7 @@ from typing import Optional, Tuple
 from requests.auth import AuthBase
 
 from libdyson.cloud import DysonAccount
-from libdyson.cloud.cloud_360_eye import DysonCloud360Eye
+from libdyson.cloud.cloud_360_eye import CleaningType, DysonCloud360Eye
 
 from . import AUTH_INFO
 from .mocked_requests import MockedRequests
@@ -37,7 +37,7 @@ def test_get_cleaning_history(mocked_requests: MockedRequests, country: str):
                 "Finished": "2021-02-09T14:14:11",
                 "Area": 34.70,
                 "Charges": 1,
-                "Type": "Immediate",
+                "Type": "Scheduled",
                 "IsInterim": True,
             },
         ],
@@ -64,7 +64,7 @@ def test_get_cleaning_history(mocked_requests: MockedRequests, country: str):
     assert task.cleaning_time == timedelta(seconds=10)
     assert task.area == 0.0
     assert task.charges == 0
-    assert task.cleaning_type == "Immediate"
+    assert task.cleaning_type == CleaningType.Immediate
     assert task.is_interim is False
     task = cleaning_tasks[1]
     assert task.cleaning_id == cleaning2_id
@@ -73,7 +73,7 @@ def test_get_cleaning_history(mocked_requests: MockedRequests, country: str):
     assert task.cleaning_time == timedelta(hours=2, minutes=4, seconds=4)
     assert task.area == 34.7
     assert task.charges == 1
-    assert task.cleaning_type == "Immediate"
+    assert task.cleaning_type == CleaningType.Scheduled
     assert task.is_interim is True
 
 

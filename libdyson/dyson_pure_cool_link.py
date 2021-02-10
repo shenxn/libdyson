@@ -4,7 +4,14 @@ import json
 import logging
 import threading
 
-from libdyson.const import AirQualityTarget, FanMode, FanSpeed, MessageType
+from libdyson.const import (
+    ENVIRONMENTAL_INIT,
+    ENVIRONMENTAL_OFF,
+    AirQualityTarget,
+    FanMode,
+    FanSpeed,
+    MessageType,
+)
 from libdyson.exceptions import DysonNotConnected
 
 from .dyson_device import TIMEOUT, DysonDevice
@@ -127,7 +134,9 @@ class DysonPureCoolLink(DysonDevice):
     def _get_environmental_field_value(state, field, divisor=1):
         value = DysonPureCoolLink._get_field_value(state, field)
         if value == "OFF":
-            return -1
+            return ENVIRONMENTAL_OFF
+        if value == "INIT":
+            return ENVIRONMENTAL_INIT
         if divisor == 1:
             return int(value)
         return float(value) / divisor

@@ -5,7 +5,14 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from libdyson import DEVICE_TYPE_PURE_COOL_LINK_DESK, DEVICE_TYPE_PURE_COOL_LINK_TOWER
-from libdyson.const import AirQualityTarget, FanMode, FanSpeed, MessageType
+from libdyson.const import (
+    ENVIRONMENTAL_INIT,
+    ENVIRONMENTAL_OFF,
+    AirQualityTarget,
+    FanMode,
+    FanSpeed,
+    MessageType,
+)
 from libdyson.dyson_pure_cool_link import DysonPureCoolLink
 from libdyson.exceptions import DysonConnectTimeout, DysonNotConnected
 
@@ -87,11 +94,11 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
     assert device.filter_life == 1500
 
     # Environmental
-    assert device.humidity == -1
-    assert device.temperature == -1
+    assert device.humidity == ENVIRONMENTAL_OFF
+    assert device.temperature == ENVIRONMENTAL_OFF
     assert device.particulars == 3
     assert device.volatil_organic_compounds == 4
-    assert device.sleep_timer == -1
+    assert device.sleep_timer == ENVIRONMENTAL_OFF
 
     new_status = {
         "mode-reason": "LAPP",
@@ -126,7 +133,7 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
             "tact": "2903",
             "hact": "0030",
             "pact": "0005",
-            "vact": "0002",
+            "vact": "INIT",
             "sltm": "0003",
         }
     }
@@ -134,7 +141,7 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
     assert device.humidity == 30
     assert device.temperature == 290.3
     assert device.particulars == 5
-    assert device.volatil_organic_compounds == 2
+    assert device.volatil_organic_compounds == ENVIRONMENTAL_INIT
     assert device.sleep_timer == 3
 
 

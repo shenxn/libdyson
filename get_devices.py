@@ -1,6 +1,6 @@
 from getpass import getpass
 
-from libdyson import DysonAccount
+from libdyson.cloud import DysonAccount
 
 email = input("Email: ")
 password = getpass()

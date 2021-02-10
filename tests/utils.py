@@ -5,7 +5,7 @@ import json
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-from libdyson.dyson_account import DYSON_ENCRYPTION_INIT_VECTOR, DYSON_ENCRYPTION_KEY
+from libdyson.cloud.utils import DYSON_ENCRYPTION_INIT_VECTOR, DYSON_ENCRYPTION_KEY
 
 
 def encrypt_credential(serial: str, credential: str) -> str:

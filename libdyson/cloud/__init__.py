@@ -1,10 +1,7 @@
-"""Dyson cloud account."""
-import base64
-import json
+"""Dyson cloud client."""
 import pathlib
 from typing import List, Optional
 
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -16,6 +13,8 @@ from libdyson.exceptions import (
     DysonServerError,
 )
 
+from .utils import decrypt_password
+
 DYSON_API_URL = "https://appapi.cp.dyson.com"
 DYSON_API_URL_CN = "https://appapi.cp.dyson.cn"
 DYSON_API_HEADERS = {"User-Agent": "DysonLink/29019 CFNetwork/1188 Darwin/20.0.0"}
@@ -26,14 +25,6 @@ API_PATH_DEVICES = "/v2/provisioningservice/manifest"
 FILE_PATH = pathlib.Path(__file__).parent.absolute()
 
 DYSON_CERT = f"{FILE_PATH}/certs/DigiCert-chain.crt"
-
-DYSON_ENCRYPTION_KEY = (
-    b"\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10"
-    b"\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f "
-)
-DYSON_ENCRYPTION_INIT_VECTOR = (
-    b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-)
 
 
 class DysonDeviceInfo:
@@ -48,7 +39,7 @@ class DysonDeviceInfo:
         self.serial = raw["Serial"]
         self.name = raw["Name"]
         self.version = raw["Version"]
-        self.credential = _decrypt_passwrd(raw["LocalCredentials"])
+        self.credential = decrypt_password(raw["LocalCredentials"])
         self.auto_update = raw["AutoUpdate"]
         self.new_version_available = raw["NewVersionAvailable"]
         self.product_type = raw["ProductType"]
@@ -137,20 +128,3 @@ class DysonAccount:
         for raw in response.json():
             devices.append(DysonDeviceInfo(raw))
         return devices
-
-
-def _unpad(string):
-    """Un pad string."""
-    return string[: -ord(string[len(string) - 1 :])]
-
-
-def _decrypt_passwrd(encrypted_password):
-    cipher = Cipher(
-        algorithms.AES(DYSON_ENCRYPTION_KEY),
-        modes.CBC(DYSON_ENCRYPTION_INIT_VECTOR),
-    )
-    decryptor = cipher.decryptor()
-    encrypted = base64.b64decode(encrypted_password)
-    decrypted = decryptor.update(encrypted) + decryptor.finalize()
-    json_password = json.loads(_unpad(decrypted))
-    return json_password["apPasswordHash"]

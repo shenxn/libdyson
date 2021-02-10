@@ -5,7 +5,7 @@ from typing import Callable
 
 import requests
 
-from libdyson.dyson_account import (
+from libdyson.cloud import (
     DYSON_API_HEADERS,
     DYSON_API_URL,
     DYSON_API_URL_CN,

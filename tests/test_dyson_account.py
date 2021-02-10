@@ -7,7 +7,7 @@ import pytest
 import requests
 from requests.auth import AuthBase, HTTPBasicAuth
 
-from libdyson.dyson_account import API_PATH_DEVICES, API_PATH_LOGIN, DysonAccount
+from libdyson.cloud import API_PATH_DEVICES, API_PATH_LOGIN, DysonAccount
 from libdyson.exceptions import (
     DysonAuthRequired,
     DysonInvalidAuth,
@@ -101,7 +101,7 @@ def mocked_requests(request):
     mocked_requests.register_handler("POST", API_PATH_LOGIN, _login_handler)
     mocked_requests.register_handler("GET", API_PATH_DEVICES, _devices_handler)
 
-    with patch("libdyson.dyson_account.requests.request", mocked_requests.request):
+    with patch("libdyson.cloud.requests.request", mocked_requests.request):
         yield mocked_requests
 
 

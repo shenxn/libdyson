@@ -109,5 +109,5 @@ class DysonAccount:
         devices = []
         response = self.request("GET", API_PATH_DEVICES)
         for raw in response.json():
-            devices.append(DysonDeviceInfo(raw))
+            devices.append(DysonDeviceInfo.from_raw(raw))
         return devices

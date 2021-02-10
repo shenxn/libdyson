@@ -2,3 +2,4 @@ paho_mqtt
 cryptography
 requests
 zeroconf
+attr

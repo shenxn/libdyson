@@ -1,7 +1,6 @@
 """Tests for DysonAccount."""
 
 from typing import Optional, Tuple
-from unittest.mock import patch
 
 import pytest
 import requests
@@ -16,18 +15,13 @@ from libdyson.exceptions import (
     DysonServerError,
 )
 
+from . import AUTH_ACCOUNT, AUTH_INFO, AUTH_PASSWORD
 from .mocked_requests import MockedRequests
 from .utils import encrypt_credential
 
 EMAIL = "user@example.com"
 PASSWORD = "password"
 
-AUTH_ACCOUNT = "fe011372-8949-4fe4-a815-06a9992126e0"
-AUTH_PASSWORD = "jvDII/gIG8MXCaWydBalT1Uo4KxM4NOfUaXqd5mwe6OKb5cjQJUyjC1+g0bVi2nJO4TN0ZS2PawMqc6+ITB4fA=="
-AUTH_INFO = {
-    "Account": AUTH_ACCOUNT,
-    "Password": AUTH_PASSWORD,
-}
 
 DEVICE1_SERIAL = "NK6-CN-HAA0000A"
 DEVICE1_NAME = "Device1"
@@ -72,17 +66,15 @@ DEVICES = [
 ]
 
 
-@pytest.fixture(params=["CN", "US"])
-def mocked_requests(request):
+@pytest.fixture
+def mocked_requests(mocked_requests: MockedRequests) -> MockedRequests:
     """Return mocked requests library."""
-    country = request.param
-    mocked_requests = MockedRequests(country)
 
     def _login_handler(
         params: dict, data: dict, auth: Optional[AuthBase]
     ) -> Tuple[int, Optional[dict]]:
         assert auth is None
-        assert params == {"country": country}
+        assert params == {"country": mocked_requests.country}
         if data["Email"] == EMAIL and data["Password"] == PASSWORD:
             return (200, AUTH_INFO)
         return (401, {"Message": "Unable to authenticate user."})
@@ -100,15 +92,7 @@ def mocked_requests(request):
 
     mocked_requests.register_handler("POST", API_PATH_LOGIN, _login_handler)
     mocked_requests.register_handler("GET", API_PATH_DEVICES, _devices_handler)
-
-    with patch("libdyson.cloud.requests.request", mocked_requests.request):
-        yield mocked_requests
-
-
-@pytest.fixture
-def country(mocked_requests: MockedRequests) -> str:
-    """Return country."""
-    return mocked_requests.country
+    return mocked_requests
 
 
 def test_account(country: str):

@@ -1,4 +1,4 @@
-"""Utilities for tests."""
+"""Utilities for cloud tests."""
 
 import base64
 import json

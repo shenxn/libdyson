@@ -13,7 +13,7 @@ from libdyson.exceptions import (
     DysonServerError,
 )
 
-from .utils import decrypt_password
+from .device_info import DysonDeviceInfo
 
 DYSON_API_URL = "https://appapi.cp.dyson.com"
 DYSON_API_URL_CN = "https://appapi.cp.dyson.cn"
@@ -25,24 +25,6 @@ API_PATH_DEVICES = "/v2/provisioningservice/manifest"
 FILE_PATH = pathlib.Path(__file__).parent.absolute()
 
 DYSON_CERT = f"{FILE_PATH}/certs/DigiCert-chain.crt"
-
-
-class DysonDeviceInfo:
-    """Dyson device info."""
-
-    def __init__(self, raw):
-        """Create device info from raw data."""
-        if "Active" in raw:
-            self.active = raw["Active"]
-        else:
-            self.active = None
-        self.serial = raw["Serial"]
-        self.name = raw["Name"]
-        self.version = raw["Version"]
-        self.credential = decrypt_password(raw["LocalCredentials"])
-        self.auto_update = raw["AutoUpdate"]
-        self.new_version_available = raw["NewVersionAvailable"]
-        self.product_type = raw["ProductType"]
 
 
 class DysonAccount:
@@ -71,7 +53,7 @@ class DysonAccount:
             self.auth_info["Password"],
         )
 
-    def _request(
+    def request(
         self,
         method: str,
         path: str,
@@ -79,6 +61,7 @@ class DysonAccount:
         data: Optional[dict] = None,
         auth: bool = True,
     ) -> requests.Response:
+        """Make API request."""
         if self._country == "CN":
             url = DYSON_API_URL_CN
         else:
@@ -106,7 +89,7 @@ class DysonAccount:
     def login(self, email: str, password: str) -> None:
         """Login to Dyson cloud account."""
         try:
-            response = self._request(
+            response = self.request(
                 "POST",
                 API_PATH_LOGIN,
                 params={"country": self._country},
@@ -124,7 +107,7 @@ class DysonAccount:
     def devices(self) -> List[DysonDeviceInfo]:
         """Get device info from cloud account."""
         devices = []
-        response = self._request("GET", API_PATH_DEVICES)
+        response = self.request("GET", API_PATH_DEVICES)
         for raw in response.json():
             devices.append(DysonDeviceInfo(raw))
         return devices

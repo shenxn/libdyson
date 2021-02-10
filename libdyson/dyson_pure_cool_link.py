@@ -116,7 +116,7 @@ class DysonPureCoolLink(DysonDevice):
 
     @property
     def sleep_timer(self) -> int:
-        """Return sleep timer."""
+        """Return sleep timer in minutes."""
         return self._sleep_timer
 
     @staticmethod
@@ -244,6 +244,16 @@ class DysonPureCoolLink(DysonDevice):
     def set_air_quality_target(self, air_quality_target: AirQualityTarget) -> None:
         """Set air quality target."""
         self._set_configuration(qtar=air_quality_target.value)
+
+    def set_sleep_timer(self, duration: int) -> None:
+        """Set sleep timer."""
+        if not 0 < duration <= 540:
+            raise ValueError("Duration must be between 1 and 540")
+        self._set_configuration(sltm="%04d" % duration)
+
+    def disable_sleep_timer(self) -> None:
+        """Disable sleep timer."""
+        self._set_configuration(sltm="OFF")
 
     def reset_filter(self) -> None:
         """Reset filter life."""

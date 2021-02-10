@@ -154,6 +154,8 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
         ("set_standby_monitoring", [True], {"fmod": "OFF", "rhtm": "ON"}),
         ("set_standby_monitoring", [False], {"fmod": "OFF", "rhtm": "OFF"}),
         ("set_air_quality_target", [AirQualityTarget.HIGH], {"qtar": "0003"}),
+        ("set_sleep_timer", [15], {"sltm": "0015"}),
+        ("disable_sleep_timer", [], {"sltm": "OFF"}),
         ("reset_filter", [], {"rstf": "RSTF"}),
     ],
 )
@@ -173,6 +175,17 @@ def test_command(
     payload = mqtt_client.commands[0]
     assert payload["msg"] == "STATE-SET"
     assert payload["data"] == msg_data
+
+
+def test_invalid_sleep_timer(device_type: str, mqtt_client: MockedMQTT):
+    """Test set sleep timer with invalid value."""
+    device = DysonPureCoolLink(SERIAL, CREDENTIAL, device_type)
+    device.connect(HOST)
+    with pytest.raises(ValueError):
+        device.set_sleep_timer(0)
+    with pytest.raises(ValueError):
+        device.set_sleep_timer(600)
+    assert len(mqtt_client.commands) == 0
 
 
 def test_not_connected(device_type: str):

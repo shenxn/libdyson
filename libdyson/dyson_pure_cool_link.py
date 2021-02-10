@@ -38,7 +38,7 @@ class DysonPureCoolLink(DysonDevice):
         self._oscillation = None
         self._filter_life = None
         self._air_quality_target = None
-        self._standby_monitoring = None
+        self._continuous_monitoring = None
         self._error_code = None
         self._warning_code = None
 
@@ -90,9 +90,9 @@ class DysonPureCoolLink(DysonDevice):
         return self._night_mode
 
     @property
-    def standby_monitoring(self) -> bool:
+    def continuous_monitoring(self) -> bool:
         """Return standby monitoring status."""
-        return self._standby_monitoring
+        return self._continuous_monitoring
 
     @property
     def air_quality_target(self) -> AirQualityTarget:
@@ -179,7 +179,7 @@ class DysonPureCoolLink(DysonDevice):
         self._air_quality_target = AirQualityTarget(
             self._get_field_value(state, "qtar")
         )
-        self._standby_monitoring = self._get_field_value(state, "rhtm") == "ON"
+        self._continuous_monitoring = self._get_field_value(state, "rhtm") == "ON"
         self._error_code = self._get_field_value(state, "ercd")
         self._warning_code = self._get_field_value(state, "wacd")
 
@@ -258,11 +258,11 @@ class DysonPureCoolLink(DysonDevice):
         """Turn on/off auto mode."""
         self._set_configuration(nmod=self._bool_to_param(night_mode))
 
-    def set_standby_monitoring(self, standby_monitoring: bool) -> None:
-        """Turn on/off standby monitoring."""
+    def set_continuous_monitoring(self, continuous_monitoring: bool) -> None:
+        """Turn on/off continuous monitoring."""
         self._set_configuration(
             fmod=self._fan_mode.value,  # Seems fmod is required to make this work
-            rhtm=self._bool_to_param(standby_monitoring),
+            rhtm=self._bool_to_param(continuous_monitoring),
         )
 
     def set_air_quality_target(self, air_quality_target: AirQualityTarget) -> None:

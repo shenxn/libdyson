@@ -89,7 +89,7 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
     assert device.auto_mode is False
     assert device.oscillation is False
     assert device.night_mode is False
-    assert device.standby_monitoring is False
+    assert device.continuous_monitoring is False
     assert device.air_quality_target == AirQualityTarget.DEFAULT
     assert device.filter_life == 1500
     assert device.error_code == "NONE"
@@ -128,7 +128,7 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
     assert device.auto_mode is True
     assert device.oscillation is True
     assert device.night_mode is True
-    assert device.standby_monitoring is True
+    assert device.continuous_monitoring is True
     assert device.air_quality_target == AirQualityTarget.BETTER
     assert device.filter_life == 1450
     assert device.error_code == error_code
@@ -164,8 +164,8 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
         ("set_oscillation", [False], {"oson": "OFF"}),
         ("set_night_mode", [True], {"nmod": "ON"}),
         ("set_night_mode", [False], {"nmod": "OFF"}),
-        ("set_standby_monitoring", [True], {"fmod": "OFF", "rhtm": "ON"}),
-        ("set_standby_monitoring", [False], {"fmod": "OFF", "rhtm": "OFF"}),
+        ("set_continuous_monitoring", [True], {"fmod": "OFF", "rhtm": "ON"}),
+        ("set_continuous_monitoring", [False], {"fmod": "OFF", "rhtm": "OFF"}),
         ("set_air_quality_target", [AirQualityTarget.HIGH], {"qtar": "0003"}),
         ("set_sleep_timer", [15], {"sltm": "0015"}),
         ("disable_sleep_timer", [], {"sltm": "OFF"}),

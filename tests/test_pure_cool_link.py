@@ -92,6 +92,8 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
     assert device.standby_monitoring is False
     assert device.air_quality_target == AirQualityTarget.DEFAULT
     assert device.filter_life == 1500
+    assert device.error_code == "NONE"
+    assert device.warning_code == "NONE"
 
     # Environmental
     assert device.humidity == ENVIRONMENTAL_OFF
@@ -100,6 +102,8 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
     assert device.volatil_organic_compounds == 4
     assert device.sleep_timer == ENVIRONMENTAL_OFF
 
+    error_code = "0X03"  # Just mock data
+    warning_code = "0X01"  # Just mock data
     new_status = {
         "mode-reason": "LAPP",
         "state-reason": "MODE",
@@ -111,9 +115,9 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
             "oson": ["OFF", "ON"],
             "rhtm": ["OFF", "ON"],
             "filf": ["1500", "1450"],
-            "ercd": ["NONE", "NONE"],
+            "ercd": ["NONE", error_code],
             "nmod": ["OFF", "ON"],
-            "wacd": ["NONE", "NONE"],
+            "wacd": ["NONE", warning_code],
         },
         "scheduler": {"srsc": "8773", "dstv": "0000", "tzid": "0001"},
     }
@@ -127,6 +131,8 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
     assert device.standby_monitoring is True
     assert device.air_quality_target == AirQualityTarget.BETTER
     assert device.filter_life == 1450
+    assert device.error_code == error_code
+    assert device.warning_code == warning_code
 
     mqtt_client._environmental_data = {
         "data": {

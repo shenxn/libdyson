@@ -3,6 +3,7 @@
 import json
 import logging
 import threading
+from typing import Optional
 
 from libdyson.const import (
     ENVIRONMENTAL_INIT,
@@ -36,8 +37,10 @@ class DysonPureCoolLink(DysonDevice):
         self._speed = None
         self._oscillation = None
         self._filter_life = None
-        self._quality_target = None
+        self._air_quality_target = None
         self._standby_monitoring = None
+        self._error_code = None
+        self._warning_code = None
 
         # Environmental
         self._humdity = None
@@ -100,6 +103,16 @@ class DysonPureCoolLink(DysonDevice):
     def filter_life(self) -> int:
         """Return filter life in hours."""
         return self._filter_life
+
+    @property
+    def error_code(self) -> Optional[str]:
+        """Return error code."""
+        return self._error_code
+
+    @property
+    def warning_code(self) -> Optional[str]:
+        """Return warning code."""
+        return self._warning_code
 
     @property
     def humidity(self) -> int:
@@ -167,6 +180,8 @@ class DysonPureCoolLink(DysonDevice):
             self._get_field_value(state, "qtar")
         )
         self._standby_monitoring = self._get_field_value(state, "rhtm") == "ON"
+        self._error_code = self._get_field_value(state, "ercd")
+        self._warning_code = self._get_field_value(state, "wacd")
 
     def _update_environmental(self, payload: dict) -> None:
         data = payload["data"]

@@ -167,7 +167,7 @@ def test_not_connected():
     """Test send commands without connection."""
     device = _TestDevice(SERIAL, CREDENTIAL)
     with pytest.raises(DysonNotConnected):
-        device.request_current_state()
+        device.request_current_status()
     assert device.status is None
     with pytest.raises(DysonNotConnected):
         device._send_command("COMMAND")

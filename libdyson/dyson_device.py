@@ -33,7 +33,8 @@ class DysonDevice:
         self._mqtt_client = None
         self._connected = threading.Event()
         self._disconnected = threading.Event()
-        self._state_data_available = threading.Event()
+        self._status = None
+        self._status_data_available = threading.Event()
         self._callbacks = []
 
     @property
@@ -63,8 +64,8 @@ class DysonDevice:
 
     def _request_first_data(self) -> bool:
         """Request and wait for first data."""
-        self.request_current_state()
-        return self._state_data_available.wait(timeout=TIMEOUT)
+        self.request_current_status()
+        return self._status_data_available.wait(timeout=TIMEOUT)
 
     def connect(self, host: str) -> None:
         """Connect to the device MQTT broker."""
@@ -134,8 +135,8 @@ class DysonDevice:
         if payload["msg"] in ["CURRENT-STATE", "STATE-CHANGE"]:
             _LOGGER.debug("New state: %s", payload)
             self._update_state(payload)
-            if not self._state_data_available.is_set():
-                self._state_data_available.set()
+            if not self._status_data_available.is_set():
+                self._status_data_available.set()
             for callback in self._callbacks:
                 callback(MessageType.STATE)
 
@@ -162,8 +163,8 @@ class DysonDevice:
         payload.update(data)
         self._mqtt_client.publish(self._command_topic, json.dumps(payload))
 
-    def request_current_state(self):
-        """Request new state message."""
+    def request_current_status(self):
+        """Request current status."""
         if not self.is_connected:
             raise DysonNotConnected
         payload = {

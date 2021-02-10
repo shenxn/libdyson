@@ -143,7 +143,7 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
             "sltm": "0003",
         }
     }
-    device.request_environmental_state()
+    device.request_environmental_data()
     assert device.humidity == 30
     assert device.temperature == 290.3
     assert device.particulars == 5
@@ -207,7 +207,7 @@ def test_not_connected(device_type: str):
     with pytest.raises(DysonNotConnected):
         device.turn_on()
     with pytest.raises(DysonNotConnected):
-        device.request_environmental_state()
+        device.request_environmental_data()
 
 
 def test_connect_environmental_timeout(device_type: str, mqtt_client: MockedMQTT):
@@ -227,7 +227,7 @@ def test_connect_environmental_timeout(device_type: str, mqtt_client: MockedMQTT
     device = DysonPureCoolLink(SERIAL, CREDENTIAL, device_type)
     with pytest.raises(DysonConnectTimeout):
         device.connect(HOST)
-    assert device._state_data_available.is_set()
+    assert device._status_data_available.is_set()
     assert device.is_connected is False
     assert mqtt_client.connected is False
     assert mqtt_client.loop_started is False
@@ -242,6 +242,6 @@ def test_environmental_callback(device_type: str):
     callback.assert_called_with(MessageType.ENVIRONMENTAL)
     callback.reset_mock()
 
-    device.request_environmental_state()
+    device.request_environmental_data()
     callback.assert_called_once_with(MessageType.ENVIRONMENTAL)
     callback.reset_mock()

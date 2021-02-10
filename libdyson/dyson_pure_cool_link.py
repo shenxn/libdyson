@@ -210,16 +210,16 @@ class DysonPureCoolLink(DysonDevice):
 
     def _request_first_data(self) -> bool:
         """Request and wait for first data."""
-        self.request_current_state()
-        self.request_environmental_state()
-        state_available = self._state_data_available.wait(timeout=TIMEOUT)
+        self.request_current_status()
+        self.request_environmental_data()
+        status_available = self._status_data_available.wait(timeout=TIMEOUT)
         environmental_available = self._environmental_data_available.wait(
             timeout=TIMEOUT
         )
-        return state_available and environmental_available
+        return status_available and environmental_available
 
-    def request_environmental_state(self):
-        """Request environmental state."""
+    def request_environmental_data(self):
+        """Request environmental sensor data."""
         if not self.is_connected:
             raise DysonNotConnected
         payload = {

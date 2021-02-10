@@ -99,7 +99,7 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
     assert device.humidity == ENVIRONMENTAL_OFF
     assert device.temperature == ENVIRONMENTAL_OFF
     assert device.particulars == 3
-    assert device.volatil_organic_compounds == 4
+    assert device.volatile_organic_compounds == 4
     assert device.sleep_timer == ENVIRONMENTAL_OFF
 
     error_code = "0X03"  # Just mock data
@@ -147,7 +147,7 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
     assert device.humidity == 30
     assert device.temperature == 290.3
     assert device.particulars == 5
-    assert device.volatil_organic_compounds == ENVIRONMENTAL_INIT
+    assert device.volatile_organic_compounds == ENVIRONMENTAL_INIT
     assert device.sleep_timer == 3
 
 

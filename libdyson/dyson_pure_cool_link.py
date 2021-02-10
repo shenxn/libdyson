@@ -43,9 +43,9 @@ class DysonPureCoolLink(DysonDevice):
         self._warning_code = None
 
         # Environmental
-        self._humdity = None
+        self._humidity = None
         self._temperature = None
-        self._volatil_organic_compounds = None
+        self._volatile_organic_compounds = None
         self._particulars = None
         self._sleep_timer = None
 
@@ -117,7 +117,7 @@ class DysonPureCoolLink(DysonDevice):
     @property
     def humidity(self) -> int:
         """Return humidity in percentage."""
-        return self._humdity
+        return self._humidity
 
     @property
     def temperature(self) -> int:
@@ -130,9 +130,9 @@ class DysonPureCoolLink(DysonDevice):
         return self._particulars
 
     @property
-    def volatil_organic_compounds(self) -> int:
+    def volatile_organic_compounds(self) -> int:
         """Return VOCs in unknown unit."""
-        return self._volatil_organic_compounds
+        return self._volatile_organic_compounds
 
     @property
     def sleep_timer(self) -> int:
@@ -185,12 +185,12 @@ class DysonPureCoolLink(DysonDevice):
 
     def _update_environmental(self, payload: dict) -> None:
         data = payload["data"]
-        self._humdity = self._get_environmental_field_value(data, "hact")
+        self._humidity = self._get_environmental_field_value(data, "hact")
         self._temperature = self._get_environmental_field_value(
             data, "tact", divisor=10
         )
         self._particulars = self._get_environmental_field_value(data, "pact")
-        self._volatil_organic_compounds = self._get_environmental_field_value(
+        self._volatile_organic_compounds = self._get_environmental_field_value(
             data, "vact"
         )
         self._sleep_timer = self._get_environmental_field_value(data, "sltm")

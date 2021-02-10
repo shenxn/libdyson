@@ -42,11 +42,16 @@ class MockedRequests:
             url_base = DYSON_API_URL
         assert url.startswith(url_base)
         path = url[len(url_base) :]
-        status_code, payload = self._handlers[(method, path)](**kwargs)
         response = requests.Response()
+        if not (method, path) in self._handlers:
+            response.status_code = 404
+            return response
+        status_code, payload = self._handlers[(method, path)](**kwargs)
         response.status_code = status_code
-        response.encoding = "utf-8"
-        if payload is not None:
+        if isinstance(payload, bytes):
+            response._content = payload
+        elif payload is not None:
+            response.encoding = "utf-8"
             content = json.dumps(payload).encode("utf-8")
             response._content = content
         return response

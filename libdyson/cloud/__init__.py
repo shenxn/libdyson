@@ -80,7 +80,7 @@ class DysonAccount:
             )
         except requests.RequestException:
             raise DysonNetworkError
-        if 400 <= response.status_code < 500:
+        if response.status_code == 401:
             raise DysonInvalidAuth
         if 500 <= response.status_code < 600:
             raise DysonServerError

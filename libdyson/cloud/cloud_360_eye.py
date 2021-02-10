@@ -1,7 +1,7 @@
 """Dyson 360 Eye cloud client."""
 
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Optional
 
 import attr
 
@@ -49,3 +49,13 @@ class DysonCloud360Eye(DysonCloudDevice):
             f"/v1/assets/devices/{self._serial}/cleanhistory",
         )
         return [CleaningTask.from_raw(raw) for raw in response.json()["Entries"]]
+
+    def get_cleaning_map(self, cleaning_id: str) -> Optional[bytes]:
+        """Get cleaning map in PNG format."""
+        response = self._account.request(
+            "GET",
+            f"/v1/mapvisualizer/devices/{self._serial}/map/{cleaning_id}",
+        )
+        if response.status_code == 404:
+            return None  # No map associate with the cleaning id
+        return response.content

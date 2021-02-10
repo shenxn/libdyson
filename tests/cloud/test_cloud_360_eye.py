@@ -75,3 +75,26 @@ def test_get_cleaning_history(mocked_requests: MockedRequests, country: str):
     assert task.charges == 1
     assert task.cleaning_type == "Immediate"
     assert task.is_interim is True
+
+
+def test_get_cleaning_map(mocked_requests: MockedRequests, country: str):
+    """Test get cleaning map from the cloud."""
+    cleaning_id = "edcda2c9-5088-455e-b2ee-9422ef70afb2"
+    cleaning_map = b"mocked_png_image"
+
+    def _clean_history_handler(auth: Optional[AuthBase], **kwargs) -> Tuple[int, bytes]:
+        assert auth is not None
+        return (0, cleaning_map)
+
+    mocked_requests.register_handler(
+        "GET",
+        f"/v1/mapvisualizer/devices/{SERIAL}/map/{cleaning_id}",
+        _clean_history_handler,
+    )
+
+    account = DysonAccount(country, AUTH_INFO)
+    device = DysonCloud360Eye(account, SERIAL)
+    assert device.get_cleaning_map(cleaning_id) == cleaning_map
+
+    # Non existed map
+    assert device.get_cleaning_map("another_id") is None

@@ -28,16 +28,9 @@ class DysonPureCoolLink(DysonDevice):
         super().__init__(serial, credential)
         self._device_type = device_type
 
-        self._environmental_data_available = threading.Event()
-
         self._fan_mode = None
-
-        # Environmental
-        self._humidity = None
-        self._temperature = None
-        self._volatile_organic_compounds = None
-        self._particulars = None
-        self._sleep_timer = None
+        self._environmental_data = None
+        self._environmental_data_available = threading.Event()
 
     @property
     def device_type(self) -> str:
@@ -107,35 +100,34 @@ class DysonPureCoolLink(DysonDevice):
     @property
     def humidity(self) -> int:
         """Return humidity in percentage."""
-        return self._humidity
+        return self._get_environmental_field_value("hact")
 
     @property
     def temperature(self) -> int:
         """Return temperature in kelvin."""
-        return self._temperature
+        return self._get_environmental_field_value("tact", divisor=10)
 
     @property
     def particulars(self) -> int:
         """Return particulars in unknown unit."""
-        return self._particulars
+        return self._get_environmental_field_value("pact")
 
     @property
     def volatile_organic_compounds(self) -> int:
         """Return VOCs in unknown unit."""
-        return self._volatile_organic_compounds
+        return self._get_environmental_field_value("vact")
 
     @property
     def sleep_timer(self) -> int:
         """Return sleep timer in minutes."""
-        return self._sleep_timer
+        return self._get_environmental_field_value("sltm")
 
     @staticmethod
     def _get_field_value(state, field):
         return state[field][1] if isinstance(state[field], list) else state[field]
 
-    @staticmethod
-    def _get_environmental_field_value(state, field, divisor=1):
-        value = DysonPureCoolLink._get_field_value(state, field)
+    def _get_environmental_field_value(self, field, divisor=1):
+        value = DysonPureCoolLink._get_field_value(self._environmental_data, field)
         if value == "OFF":
             return ENVIRONMENTAL_OFF
         if value == "INIT":
@@ -152,7 +144,7 @@ class DysonPureCoolLink(DysonDevice):
         super()._handle_message(payload)
         if payload["msg"] == "ENVIRONMENTAL-CURRENT-SENSOR-DATA":
             _LOGGER.debug("New environmental state: %s", payload)
-            self._update_environmental(payload)
+            self._environmental_data = payload["data"]
             if not self._environmental_data_available.is_set():
                 self._environmental_data_available.set()
             for callback in self._callbacks:
@@ -161,18 +153,6 @@ class DysonPureCoolLink(DysonDevice):
     def _update_status(self, payload: dict) -> None:
         self._status = payload["product-state"]
         self._fan_mode = FanMode(self._get_field_value(self._status, "fmod"))
-
-    def _update_environmental(self, payload: dict) -> None:
-        data = payload["data"]
-        self._humidity = self._get_environmental_field_value(data, "hact")
-        self._temperature = self._get_environmental_field_value(
-            data, "tact", divisor=10
-        )
-        self._particulars = self._get_environmental_field_value(data, "pact")
-        self._volatile_organic_compounds = self._get_environmental_field_value(
-            data, "vact"
-        )
-        self._sleep_timer = self._get_environmental_field_value(data, "sltm")
 
     def _set_configuration(self, **kwargs: dict) -> None:
         if not self.is_connected:

@@ -111,7 +111,7 @@ class DysonAccount:
             raise DysonServerError
         return response
 
-    def login_email_password(self, email: str, password: str, region: str) -> None:
+    def login_email_password(self, email: str, password: str, region: str) -> dict:
         """Login to Dyson cloud account using traditional email and password."""
         response = self.request(
             "GET",
@@ -138,6 +138,7 @@ class DysonAccount:
             raise DysonLoginFailure
         body = response.json()
         self._auth_info = body
+        return self._auth_info
 
     def devices(self) -> List[DysonDeviceInfo]:
         """Get device info from cloud account."""
@@ -163,7 +164,7 @@ class DysonAccountCN(DysonAccount):
             return HTTPBearerAuth(self.auth_info["token"])
         return None
 
-    def login_mobile_otp(self, mobile: str) -> Callable[[str], None]:
+    def login_mobile_otp(self, mobile: str) -> Callable[[str], dict]:
         """Login using phone number and OTP code."""
         response = self.request(
             "POST",
@@ -191,5 +192,6 @@ class DysonAccountCN(DysonAccount):
                 raise DysonLoginFailure
             body = response.json()
             self._auth_info = body
+            return self._auth_info
 
         return _verify

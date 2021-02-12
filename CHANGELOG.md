@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3
+
+- Fix wheel building to include certificate
+
 ## 0.3.2
 
 - Include Dyson cloud server certificate chain into PyPI package

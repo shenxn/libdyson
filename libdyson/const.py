@@ -43,7 +43,7 @@ class FanSpeed(Enum):
 class AirQualityTarget(Enum):
     """Air Quality Target."""
 
-    NORMAL = "0004"
-    HIGH = "0003"
+    GOOD = "0004"
+    SENSITIVE = "0003"
     DEFAULT = "0002"
-    BETTER = "0001"
+    VERY_SENSITIVE = "0001"

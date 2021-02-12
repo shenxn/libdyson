@@ -166,7 +166,7 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
         ("set_night_mode", [False], {"nmod": "OFF"}),
         ("set_continuous_monitoring", [True], {"fmod": "OFF", "rhtm": "ON"}),
         ("set_continuous_monitoring", [False], {"fmod": "OFF", "rhtm": "OFF"}),
-        ("set_air_quality_target", [AirQualityTarget.HIGH], {"qtar": "0003"}),
+        ("set_air_quality_target", [AirQualityTarget.SENSITIVE], {"qtar": "0003"}),
         ("set_sleep_timer", [15], {"sltm": "0015"}),
         ("disable_sleep_timer", [], {"sltm": "OFF"}),
         ("reset_filter", [], {"rstf": "RSTF"}),

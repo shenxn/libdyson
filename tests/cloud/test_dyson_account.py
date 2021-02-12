@@ -6,7 +6,12 @@ import pytest
 import requests
 from requests.auth import AuthBase, HTTPBasicAuth
 
-from libdyson.cloud import API_PATH_DEVICES, API_PATH_LOGIN, DysonAccount
+from libdyson.cloud import DysonAccount
+from libdyson.cloud.account import (
+    API_PATH_DEVICES,
+    API_PATH_LOGIN,
+    API_PATH_USER_STATUS,
+)
 from libdyson.exceptions import (
     DysonAuthRequired,
     DysonInvalidAuth,
@@ -70,12 +75,21 @@ DEVICES = [
 def mocked_requests(mocked_requests: MockedRequests) -> MockedRequests:
     """Return mocked requests library."""
 
+    def _user_status_handler(
+        params: dict, auth: Optional[AuthBase], **kwargs
+    ) -> Tuple[int, Optional[dict]]:
+        assert auth is None
+        assert params["country"] == mocked_requests.country
+        if params["email"] == EMAIL:
+            return (200, {"accountStatus": "ACTIVE"})
+        return (200, {"accountStatus": "UNREGISTERED"})
+
     def _login_handler(
-        params: dict, data: dict, auth: Optional[AuthBase]
+        params: dict, json: dict, auth: Optional[AuthBase]
     ) -> Tuple[int, Optional[dict]]:
         assert auth is None
         assert params == {"country": mocked_requests.country}
-        if data["Email"] == EMAIL and data["Password"] == PASSWORD:
+        if json["Email"] == EMAIL and json["Password"] == PASSWORD:
             return (200, AUTH_INFO)
         return (401, {"Message": "Unable to authenticate user."})
 
@@ -90,6 +104,7 @@ def mocked_requests(mocked_requests: MockedRequests) -> MockedRequests:
             return (401, None)
         return (200, DEVICES)
 
+    mocked_requests.register_handler("GET", API_PATH_USER_STATUS, _user_status_handler)
     mocked_requests.register_handler("POST", API_PATH_LOGIN, _login_handler)
     mocked_requests.register_handler("GET", API_PATH_DEVICES, _devices_handler)
     return mocked_requests
@@ -97,17 +112,17 @@ def mocked_requests(mocked_requests: MockedRequests) -> MockedRequests:
 
 def test_account(country: str):
     """Test account functionalities."""
-    account = DysonAccount(country)
+    account = DysonAccount()
 
     # Login failure
     with pytest.raises(DysonLoginFailure):
-        account.login(EMAIL, "wrong_pass")
+        account.login_email_password(EMAIL, "wrong_pass", country)
     assert account.auth_info is None
     with pytest.raises(DysonAuthRequired):
         account.devices()
 
     # Login succeed
-    account.login(EMAIL, PASSWORD)
+    account.login_email_password(EMAIL, PASSWORD, country)
     assert account.auth_info == AUTH_INFO
 
     # Devices
@@ -132,14 +147,13 @@ def test_account(country: str):
 
 def test_account_auth_info(country: str):
     """Test initialize account with auth info."""
-    account = DysonAccount(country, auth_info=AUTH_INFO)
+    account = DysonAccount(AUTH_INFO)
     devices = account.devices()
     assert len(devices) == 2
 
     # Invalid auth
     account = DysonAccount(
-        country,
-        auth_info={
+        {
             "Account": "invalid",
             "Password": "invalid",
         },
@@ -148,7 +162,7 @@ def test_account_auth_info(country: str):
         account.devices()
 
     # No auth
-    account = DysonAccount(country)
+    account = DysonAccount()
     with pytest.raises(DysonAuthRequired):
         account.devices()
 
@@ -162,10 +176,10 @@ def test_network_error(mocked_requests: MockedRequests, country: str):
     mocked_requests.register_handler("POST", API_PATH_LOGIN, _handler_network_error)
     mocked_requests.register_handler("GET", API_PATH_DEVICES, _handler_network_error)
 
-    account = DysonAccount(country)
+    account = DysonAccount()
     with pytest.raises(DysonNetworkError):
-        account.login(EMAIL, PASSWORD)
-    account = DysonAccount(country, auth_info=AUTH_INFO)
+        account.login_email_password(EMAIL, PASSWORD, country)
+    account = DysonAccount(AUTH_INFO)
     with pytest.raises(DysonNetworkError):
         account.devices()
 
@@ -179,9 +193,9 @@ def test_server_error(mocked_requests: MockedRequests, country: str):
     mocked_requests.register_handler("POST", API_PATH_LOGIN, _handler_network_error)
     mocked_requests.register_handler("GET", API_PATH_DEVICES, _handler_network_error)
 
-    account = DysonAccount(country)
+    account = DysonAccount()
     with pytest.raises(DysonServerError):
-        account.login(EMAIL, PASSWORD)
-    account = DysonAccount(country, auth_info=AUTH_INFO)
+        account.login_email_password(EMAIL, PASSWORD, country)
+    account = DysonAccount(AUTH_INFO)
     with pytest.raises(DysonServerError):
         account.devices()

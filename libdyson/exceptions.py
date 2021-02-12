@@ -13,8 +13,16 @@ class DysonServerError(DysonException):
     """Represents Dyson server error."""
 
 
+class DysonInvalidAccountStatus(DysonException):
+    """Represents invalid account status."""
+
+
 class DysonLoginFailure(DysonException):
     """Represents failure during logging in."""
+
+
+class DysonOTPTooFrequently(DysonException):
+    """Represents requesting OTP code too frequently."""
 
 
 class DysonAuthRequired(DysonException):

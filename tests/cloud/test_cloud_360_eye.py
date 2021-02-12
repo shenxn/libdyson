@@ -53,7 +53,7 @@ def test_get_cleaning_history(mocked_requests: MockedRequests, country: str):
         "GET", f"/v1/assets/devices/{SERIAL}/cleanhistory", _clean_history_handler
     )
 
-    account = DysonAccount(country, AUTH_INFO)
+    account = DysonAccount(AUTH_INFO)
     device = DysonCloud360Eye(account, SERIAL)
     cleaning_tasks = device.get_cleaning_history()
     assert len(cleaning_tasks) == 2
@@ -92,7 +92,7 @@ def test_get_cleaning_map(mocked_requests: MockedRequests, country: str):
         _clean_history_handler,
     )
 
-    account = DysonAccount(country, AUTH_INFO)
+    account = DysonAccount(AUTH_INFO)
     device = DysonCloud360Eye(account, SERIAL)
     assert device.get_cleaning_map(cleaning_id) == cleaning_map
 

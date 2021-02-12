@@ -7,13 +7,13 @@ import pytest
 from .mocked_requests import MockedRequests
 
 
-@pytest.fixture(params=["CN", "US"])
+@pytest.fixture(params=["US"])
 def mocked_requests(request) -> MockedRequests:
     """Return mocked requests library."""
     country = request.param
     mocked_requests = MockedRequests(country)
 
-    with patch("libdyson.cloud.requests.request", mocked_requests.request):
+    with patch("libdyson.cloud.account.requests.request", mocked_requests.request):
         yield mocked_requests
 
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0
+
+- Add support to login using phone number and OTP code for account in Mainland China.
+- Fix account login problem.
+- Code quality improvement.
+
 ## 0.2.0
 
 - Replace `aiohttp` with `requests`. `asyncio` is removed.

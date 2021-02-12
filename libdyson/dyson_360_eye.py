@@ -6,8 +6,8 @@ from libdyson.const import DEVICE_TYPE_360_EYE
 from libdyson.dyson_device import DysonDevice
 
 
-class Dyson360EyeState(Enum):
-    """360 Eye state."""
+class VacuumState(Enum):
+    """Dyson vacuum state."""
 
     INACTIVE_CHARGING = "INACTIVE_CHARGING"
     INACTIVE_CHARGED = "INACTIVE_CHARGED"
@@ -22,8 +22,8 @@ class Dyson360EyeState(Enum):
     FAULT_REPLACE_ON_DOCK = "FAULT_REPLACE_ON_DOCK"
 
 
-class Dyson360EyePowerMode(Enum):
-    """360 Eye power mode."""
+class VacuumPowerMode(Enum):
+    """Dyson vacuum power mode."""
 
     QUIET = "halfPower"
     MAX = "fullPower"
@@ -31,16 +31,6 @@ class Dyson360EyePowerMode(Enum):
 
 class Dyson360Eye(DysonDevice):
     """Dyson 360 Eye device."""
-
-    def __init__(self, serial: str, credential: str):
-        """Initialize the device."""
-        super().__init__(serial, credential)
-        self._state = None
-        self._power_mode = None
-        self._full_clean_type = None
-        self._position = None
-        self._clean_id = None
-        self._battery_level = None
 
     @property
     def device_type(self) -> str:
@@ -53,59 +43,55 @@ class Dyson360Eye(DysonDevice):
         return f"{self.device_type}/{self._serial}/status"
 
     @property
-    def state(self) -> Optional[Dyson360EyeState]:
+    def state(self) -> VacuumPowerMode:
         """State of the device."""
-        return self._state
+        return VacuumState(
+            self._status["state"]
+            if "state" in self._status
+            else self._status["newstate"]
+        )
 
     @property
-    def power_mode(self) -> Optional[Dyson360EyePowerMode]:
+    def power_mode(self) -> VacuumPowerMode:
         """Power mode of the device."""
-        return self._power_mode
+        return VacuumPowerMode(self._status["currentVacuumPowerMode"])
 
     @property
-    def full_clean_type(self) -> Optional[str]:
+    def full_clean_type(self) -> str:
         """Full clean type of the device."""
-        return self._full_clean_type
+        return self._status["fullCleanType"]
 
     @property
-    def clean_id(self) -> Optional[str]:
+    def clean_id(self) -> str:
         """Clean id of the device."""
-        return self._clean_id
+        return self._status["cleanId"]
 
     @property
-    def battery_level(self) -> Optional[int]:
+    def battery_level(self) -> int:
         """Battery level of the device in percentage."""
-        return self._battery_level
+        return self._status["batteryChargeLevel"]
 
     @property
     def position(self) -> Optional[Tuple[int, int]]:
         """Position (x, y) of the device."""
-        return self._position
+        if (
+            "globalPosition" in self._status
+            and len(self._status["globalPosition"]) == 2
+        ):
+            return tuple(self._status["globalPosition"])
+        return None
 
     @property
-    def is_charging(self) -> Optional[bool]:
+    def is_charging(self) -> bool:
         """Whether the device is charging."""
-        if self.state is None:
-            return None
         return self.state in [
-            Dyson360EyeState.INACTIVE_CHARGING,
-            Dyson360EyeState.INACTIVE_CHARGED,
-            Dyson360EyeState.FULL_CLEAN_CHARGING,
+            VacuumState.INACTIVE_CHARGING,
+            VacuumState.INACTIVE_CHARGED,
+            VacuumState.FULL_CLEAN_CHARGING,
         ]
 
     def _update_status(self, payload: dict) -> None:
-        state = payload["state"] if "state" in payload else payload["newstate"]
-        self._set_enum_attr(state, "state", Dyson360EyeState)
-        self._set_enum_attr(
-            payload["currentVacuumPowerMode"],
-            "power_mode",
-            Dyson360EyePowerMode,
-        )
-        self._full_clean_type = payload["fullCleanType"]
-        self._clean_id = payload["cleanId"]
-        self._battery_level = payload["batteryChargeLevel"]
-        if "globalPosition" in payload and len(payload["globalPosition"]) == 2:
-            self._position = tuple(payload["globalPosition"])
+        self._status = payload
 
     def start(self) -> None:
         """Start cleaning."""
@@ -123,7 +109,7 @@ class Dyson360Eye(DysonDevice):
         """Abort cleaning."""
         self._send_command("ABORT")
 
-    def set_power_mode(self, power_mode: Dyson360EyePowerMode) -> None:
+    def set_power_mode(self, power_mode: VacuumPowerMode) -> None:
         """Set power mode."""
         self._send_command(
             "STATE-SET",

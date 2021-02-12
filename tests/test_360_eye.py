@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from libdyson import DEVICE_TYPE_360_EYE
-from libdyson.dyson_360_eye import Dyson360Eye, Dyson360EyePowerMode, Dyson360EyeState
+from libdyson.dyson_360_eye import Dyson360Eye, VacuumPowerMode, VacuumState
 
 from . import CREDENTIAL, HOST, SERIAL
 from .mocked_mqtt import MockedMQTT
@@ -38,22 +38,12 @@ def mqtt_client() -> MockedMQTT:
 def test_properties(mqtt_client: MockedMQTT):
     """Test properties of 360 Eye."""
     device = Dyson360Eye(SERIAL, CREDENTIAL)
-
-    # Make sure no errors without connection
-    assert device.state is None
-    assert device.full_clean_type is None
-    assert device.clean_id is None
-    assert device.power_mode is None
-    assert device.position is None
-    assert device.is_charging is None
-    assert device.battery_level is None
-
     device.connect(HOST)
 
-    assert device.state == Dyson360EyeState.INACTIVE_CHARGED
+    assert device.state == VacuumState.INACTIVE_CHARGED
     assert device.full_clean_type == ""
     assert device.clean_id == ""
-    assert device.power_mode == Dyson360EyePowerMode.MAX
+    assert device.power_mode == VacuumPowerMode.MAX
     assert device.position == (0, 0)
     assert device.is_charging is True
     assert device.battery_level == 100
@@ -66,15 +56,15 @@ def test_properties(mqtt_client: MockedMQTT):
         "cleanId": clean_id,
         "currentVacuumPowerMode": "halfPower",
         "defaultVacuumPowerMode": "halfPower",
-        "globalPosition": [-3, 50],
+        "globalPosition": [],
         "batteryChargeLevel": 30,
     }
     mqtt_client.state_change(new_status)
-    assert device.state == Dyson360EyeState.FULL_CLEAN_RUNNING
+    assert device.state == VacuumState.FULL_CLEAN_RUNNING
     assert device.full_clean_type == "immediate"
     assert device.clean_id == clean_id
-    assert device.power_mode == Dyson360EyePowerMode.QUIET
-    assert device.position == (-3, 50)
+    assert device.power_mode == VacuumPowerMode.QUIET
+    assert device.position is None
     assert device.is_charging is False
     assert device.battery_level == 30
 
@@ -88,13 +78,13 @@ def test_properties(mqtt_client: MockedMQTT):
         ("abort", [], "ABORT", {}),
         (
             "set_power_mode",
-            [Dyson360EyePowerMode.MAX],
+            [VacuumPowerMode.MAX],
             "STATE-SET",
             {"data": {"defaultVacuumPowerMode": "fullPower"}},
         ),
         (
             "set_power_mode",
-            [Dyson360EyePowerMode.QUIET],
+            [VacuumPowerMode.QUIET],
             "STATE-SET",
             {"data": {"defaultVacuumPowerMode": "halfPower"}},
         ),

@@ -3,7 +3,6 @@
 import json
 import logging
 import threading
-from typing import Optional
 
 from libdyson.const import (
     ENVIRONMENTAL_INIT,
@@ -32,15 +31,6 @@ class DysonPureCoolLink(DysonDevice):
         self._environmental_data_available = threading.Event()
 
         self._fan_mode = None
-        self._fan_state = None
-        self._night_mode = None
-        self._speed = None
-        self._oscillation = None
-        self._filter_life = None
-        self._air_quality_target = None
-        self._continuous_monitoring = None
-        self._error_code = None
-        self._warning_code = None
 
         # Environmental
         self._humidity = None
@@ -67,12 +57,12 @@ class DysonPureCoolLink(DysonDevice):
     @property
     def is_on(self) -> bool:
         """Return if the device is on."""
-        return self._fan_state
+        return self._get_field_value(self._status, "fnst") == "FAN"
 
     @property
     def speed(self) -> FanSpeed:
         """Return fan speed."""
-        return self._speed
+        return FanSpeed(self._get_field_value(self._status, "fnsp"))
 
     @property
     def auto_mode(self) -> bool:
@@ -82,37 +72,37 @@ class DysonPureCoolLink(DysonDevice):
     @property
     def oscillation(self) -> bool:
         """Return oscillation status."""
-        return self._oscillation
+        return self._get_field_value(self._status, "oson") == "ON"
 
     @property
     def night_mode(self) -> bool:
         """Return night mode status."""
-        return self._night_mode
+        return self._get_field_value(self._status, "nmod") == "ON"
 
     @property
     def continuous_monitoring(self) -> bool:
         """Return standby monitoring status."""
-        return self._continuous_monitoring
+        return self._get_field_value(self._status, "rhtm") == "ON"
 
     @property
     def air_quality_target(self) -> AirQualityTarget:
         """Return air quality target."""
-        return self._air_quality_target
+        return AirQualityTarget(self._get_field_value(self._status, "qtar"))
 
     @property
     def filter_life(self) -> int:
         """Return filter life in hours."""
-        return self._filter_life
+        return int(self._get_field_value(self._status, "filf"))
 
     @property
-    def error_code(self) -> Optional[str]:
+    def error_code(self) -> str:
         """Return error code."""
-        return self._error_code
+        return self._get_field_value(self._status, "ercd")
 
     @property
-    def warning_code(self) -> Optional[str]:
+    def warning_code(self) -> str:
         """Return warning code."""
-        return self._warning_code
+        return self._get_field_value(self._status, "wacd")
 
     @property
     def humidity(self) -> int:
@@ -169,19 +159,8 @@ class DysonPureCoolLink(DysonDevice):
                 callback(MessageType.ENVIRONMENTAL)
 
     def _update_status(self, payload: dict) -> None:
-        state = payload["product-state"]
-        self._fan_mode = FanMode(self._get_field_value(state, "fmod"))
-        self._fan_state = self._get_field_value(state, "fnst") == "FAN"
-        self._night_mode = self._get_field_value(state, "nmod") == "ON"
-        self._speed = FanSpeed(self._get_field_value(state, "fnsp"))
-        self._oscillation = self._get_field_value(state, "oson") == "ON"
-        self._filter_life = int(self._get_field_value(state, "filf"))
-        self._air_quality_target = AirQualityTarget(
-            self._get_field_value(state, "qtar")
-        )
-        self._continuous_monitoring = self._get_field_value(state, "rhtm") == "ON"
-        self._error_code = self._get_field_value(state, "ercd")
-        self._warning_code = self._get_field_value(state, "wacd")
+        self._status = payload["product-state"]
+        self._fan_mode = FanMode(self._get_field_value(self._status, "fmod"))
 
     def _update_environmental(self, payload: dict) -> None:
         data = payload["data"]

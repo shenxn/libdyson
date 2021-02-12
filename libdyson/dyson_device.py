@@ -1,6 +1,5 @@
 """Dyson device."""
 from abc import abstractmethod
-from enum import Enum
 import json
 import logging
 import threading
@@ -33,6 +32,7 @@ class DysonDevice:
         self._mqtt_client = None
         self._connected = threading.Event()
         self._disconnected = threading.Event()
+        self._status = None
         self._status_data_available = threading.Event()
         self._callbacks = []
 
@@ -142,13 +142,6 @@ class DysonDevice:
     @abstractmethod
     def _update_status(self, payload: dict) -> None:
         """Update the device status."""
-
-    def _set_enum_attr(self, value: str, attr: str, enum: Enum) -> None:
-        """Update status based on enum."""
-        try:
-            setattr(self, f"_{attr}", enum(value))
-        except ValueError:
-            _LOGGER.error("Unknown %s value %s", attr, value)
 
     def _send_command(self, command: str, data: Optional[dict] = None):
         if not self.is_connected:

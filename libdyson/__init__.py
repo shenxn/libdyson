@@ -10,8 +10,8 @@ from .const import (
 from .const import MessageType  # noqa: F401
 from .discovery import DysonDiscovery  # noqa: F401
 from .dyson_360_eye import Dyson360Eye
-from .dyson_360_eye import Dyson360EyePowerMode  # noqa: F401
-from .dyson_360_eye import Dyson360EyeState  # noqa: F401
+from .dyson_360_eye import VacuumPowerMode  # noqa: F401
+from .dyson_360_eye import VacuumState  # noqa: F401
 from .dyson_device import DysonDevice
 from .dyson_pure_cool_link import DysonPureCoolLink, FanMode, FanSpeed  # noqa: F401
 

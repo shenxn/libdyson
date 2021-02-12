@@ -1,5 +1,4 @@
 """Test DysonDevice functionalities."""
-from enum import Enum
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -21,23 +20,13 @@ DEVICE_TYPE = "device_type"
 STATUS = {
     "key1": "V1",
     "key2": "V2",
-    "key3": "UNKNOWN",
 }
-
-
-class _TestEnum(Enum):
-    VALUE1 = "V1"
-    VALUE2 = "V2"
 
 
 class _TestDevice(DysonDevice):
     def __init__(self, serial: str, credential: str):
         """Initialize the device."""
         super().__init__(serial, credential)
-        self.status = None
-        self._key1 = None
-        self._key2 = None
-        self._key3 = None
 
     @property
     def device_type(self) -> str:
@@ -50,10 +39,7 @@ class _TestDevice(DysonDevice):
     def _update_status(self, payload: dict) -> None:
         payload.pop("msg")
         payload.pop("time")
-        self.status = payload
-        self._set_enum_attr(payload["key1"], "key1", _TestEnum)
-        self._set_enum_attr(payload["key2"], "key2", _TestEnum)
-        self._set_enum_attr(payload["key3"], "key3", _TestEnum)
+        self._status = payload
 
 
 @pytest.fixture(autouse=True)
@@ -168,7 +154,7 @@ def test_not_connected():
     device = _TestDevice(SERIAL, CREDENTIAL)
     with pytest.raises(DysonNotConnected):
         device.request_current_status()
-    assert device.status is None
+    assert device._status is None
     with pytest.raises(DysonNotConnected):
         device._send_command("COMMAND")
 
@@ -181,23 +167,16 @@ def test_status_update(mqtt_client: MockedMQTT):
     device.connect(HOST)
 
     # Data updated
-    assert device.status == STATUS
-    assert device._key1 == _TestEnum.VALUE1
-    assert device._key2 == _TestEnum.VALUE2
-    assert device._key3 is None  # Unknown value
+    assert device._status == STATUS
     callback.assert_called_once_with(MessageType.STATE)
     callback.reset_mock()
 
     new_status = {
-        "key1": "V1",
+        "key1": "V2",
         "key2": "V1",
-        "key3": "V1",
     }
     mqtt_client.state_change(new_status)
-    assert device.status == new_status
-    assert device._key1 == _TestEnum.VALUE1
-    assert device._key2 == _TestEnum.VALUE1
-    assert device._key3 == _TestEnum.VALUE1
+    assert device._status == new_status
     callback.assert_called_once_with(MessageType.STATE)
     callback.reset_mock()
 

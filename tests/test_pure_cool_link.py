@@ -9,8 +9,6 @@ from libdyson.const import (
     ENVIRONMENTAL_INIT,
     ENVIRONMENTAL_OFF,
     AirQualityTarget,
-    FanMode,
-    FanSpeed,
     MessageType,
 )
 from libdyson.dyson_pure_cool_link import DysonPureCoolLink
@@ -83,9 +81,8 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
 
     # Status
     assert device.device_type == device_type
-    assert device.fan_mode == FanMode.OFF
     assert device.is_on is False
-    assert device.speed == FanSpeed.SPEED_1
+    assert device.speed == 1
     assert device.auto_mode is False
     assert device.oscillation is False
     assert device.night_mode is False
@@ -122,14 +119,13 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
         "scheduler": {"srsc": "8773", "dstv": "0000", "tzid": "0001"},
     }
     mqtt_client.state_change(new_status)
-    assert device.fan_mode == FanMode.AUTO
     assert device.is_on is True
-    assert device.speed == FanSpeed.SPEED_AUTO
+    assert device.speed is None
     assert device.auto_mode is True
     assert device.oscillation is True
     assert device.night_mode is True
     assert device.continuous_monitoring is True
-    assert device.air_quality_target == AirQualityTarget.BETTER
+    assert device.air_quality_target == AirQualityTarget.VERY_SENSITIVE
     assert device.filter_life == 1450
     assert device.error_code == error_code
     assert device.warning_code == warning_code
@@ -156,8 +152,7 @@ def test_properties(device_type: str, mqtt_client: MockedMQTT):
     [
         ("turn_on", [], {"fmod": "FAN"}),
         ("turn_off", [], {"fmod": "OFF"}),
-        ("set_speed", [FanSpeed.SPEED_3], {"fmod": "FAN", "fnsp": "0003"}),
-        ("set_speed", [FanSpeed.SPEED_AUTO], {"fmod": "AUTO"}),
+        ("set_speed", [3], {"fmod": "FAN", "fnsp": "0003"}),
         ("set_auto_mode", [True], {"fmod": "AUTO"}),
         ("set_auto_mode", [False], {"fmod": "FAN"}),
         ("set_oscillation", [True], {"oson": "ON"}),
@@ -190,14 +185,27 @@ def test_command(
     assert payload["data"] == msg_data
 
 
-def test_invalid_sleep_timer(device_type: str, mqtt_client: MockedMQTT):
-    """Test set sleep timer with invalid value."""
+@pytest.mark.parametrize(
+    "command,command_args",
+    [
+        ("set_speed", [0]),
+        ("set_speed", [11]),
+        ("set_sleep_timer", [0]),
+        ("set_sleep_timer", [600]),
+    ],
+)
+def test_command_invalid_data(
+    device_type: str,
+    mqtt_client: MockedMQTT,
+    command: str,
+    command_args: list,
+):
+    """Test commands with invalid data."""
     device = DysonPureCoolLink(SERIAL, CREDENTIAL, device_type)
     device.connect(HOST)
+    func = getattr(device, command)
     with pytest.raises(ValueError):
-        device.set_sleep_timer(0)
-    with pytest.raises(ValueError):
-        device.set_sleep_timer(600)
+        func(*command_args)
     assert len(mqtt_client.commands) == 0
 
 

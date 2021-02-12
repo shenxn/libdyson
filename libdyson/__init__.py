@@ -13,7 +13,7 @@ from .dyson_360_eye import Dyson360Eye
 from .dyson_360_eye import VacuumPowerMode  # noqa: F401
 from .dyson_360_eye import VacuumState  # noqa: F401
 from .dyson_device import DysonDevice
-from .dyson_pure_cool_link import DysonPureCoolLink, FanMode, FanSpeed  # noqa: F401
+from .dyson_pure_cool_link import DysonPureCoolLink
 
 
 def get_device(serial: str, credential: str, device_type: str) -> Optional[DysonDevice]:

@@ -3,17 +3,11 @@
 import json
 import logging
 import threading
+from typing import Optional
 
-from libdyson.const import (
-    ENVIRONMENTAL_INIT,
-    ENVIRONMENTAL_OFF,
-    AirQualityTarget,
-    FanMode,
-    FanSpeed,
-    MessageType,
-)
 from libdyson.exceptions import DysonNotConnected
 
+from .const import ENVIRONMENTAL_INIT, ENVIRONMENTAL_OFF, AirQualityTarget, MessageType
 from .dyson_device import TIMEOUT, DysonDevice
 from .utils import mqtt_time
 
@@ -28,7 +22,6 @@ class DysonPureCoolLink(DysonDevice):
         super().__init__(serial, credential)
         self._device_type = device_type
 
-        self._fan_mode = None
         self._environmental_data = None
         self._environmental_data_available = threading.Event()
 
@@ -43,9 +36,9 @@ class DysonPureCoolLink(DysonDevice):
         return f"{self.device_type}/{self._serial}/status/current"
 
     @property
-    def fan_mode(self) -> FanMode:
-        """Return fan mode."""
-        return self._fan_mode
+    def _fan_mode(self) -> str:
+        """Return the fan mode of the fan."""
+        return self._get_field_value(self._status, "fmod")
 
     @property
     def is_on(self) -> bool:
@@ -53,14 +46,17 @@ class DysonPureCoolLink(DysonDevice):
         return self._get_field_value(self._status, "fnst") == "FAN"
 
     @property
-    def speed(self) -> FanSpeed:
+    def speed(self) -> Optional[int]:
         """Return fan speed."""
-        return FanSpeed(self._get_field_value(self._status, "fnsp"))
+        speed = self._get_field_value(self._status, "fnsp")
+        if speed == "AUTO":
+            return None
+        return int(speed)
 
     @property
     def auto_mode(self) -> bool:
         """Return auto mode status."""
-        return self.fan_mode == FanMode.AUTO
+        return self._fan_mode == "AUTO"
 
     @property
     def oscillation(self) -> bool:
@@ -152,7 +148,6 @@ class DysonPureCoolLink(DysonDevice):
 
     def _update_status(self, payload: dict) -> None:
         self._status = payload["product-state"]
-        self._fan_mode = FanMode(self._get_field_value(self._status, "fmod"))
 
     def _set_configuration(self, **kwargs: dict) -> None:
         if not self.is_connected:
@@ -195,12 +190,11 @@ class DysonPureCoolLink(DysonDevice):
         """Turn off the device."""
         self._set_configuration(fmod="OFF")
 
-    def set_speed(self, speed: FanSpeed) -> None:
+    def set_speed(self, speed: int) -> None:
         """Set manual speed."""
-        if speed == FanSpeed.SPEED_AUTO:
-            self.set_auto_mode(True)
-            return
-        self._set_configuration(fmod="FAN", fnsp=speed.value)
+        if not 1 <= speed <= 10:
+            raise ValueError("Invalid speed %s", speed)
+        self._set_configuration(fmod="FAN", fnsp="%04d" % speed)
 
     def set_auto_mode(self, auto_mode: bool) -> None:
         """Turn on/off auto mode."""
@@ -220,7 +214,7 @@ class DysonPureCoolLink(DysonDevice):
     def set_continuous_monitoring(self, continuous_monitoring: bool) -> None:
         """Turn on/off continuous monitoring."""
         self._set_configuration(
-            fmod=self._fan_mode.value,  # Seems fmod is required to make this work
+            fmod=self._fan_mode,  # Seems fmod is required to make this work
             rhtm=self._bool_to_param(continuous_monitoring),
         )
 

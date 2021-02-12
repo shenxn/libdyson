@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+- Include Dyson cloud server certificate chain into PyPI package
+
 ## 0.3.1
 
 - Add account region list

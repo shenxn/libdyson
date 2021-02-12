@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+- Add account region list
+
 ## 0.3.0
 
 - Add support to login using phone number and OTP code for account in Mainland China.

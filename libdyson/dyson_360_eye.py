@@ -2,8 +2,8 @@
 from enum import Enum
 from typing import Optional, Tuple
 
-from libdyson.const import DEVICE_TYPE_360_EYE
-from libdyson.dyson_device import DysonDevice
+from .const import DEVICE_TYPE_360_EYE
+from .dyson_device import DysonDevice
 
 
 class VacuumState(Enum):
@@ -27,6 +27,14 @@ class VacuumPowerMode(Enum):
 
     QUIET = "halfPower"
     MAX = "fullPower"
+
+
+class CleaningType(Enum):
+    """Vacuum cleaning type."""
+
+    IMMEDIATE = "immediate"
+    MANUAL = "manual"
+    Scheduled = "scheduled"
 
 
 class Dyson360Eye(DysonDevice):
@@ -57,14 +65,20 @@ class Dyson360Eye(DysonDevice):
         return VacuumPowerMode(self._status["currentVacuumPowerMode"])
 
     @property
-    def full_clean_type(self) -> str:
-        """Full clean type of the device."""
-        return self._status["fullCleanType"]
+    def cleaning_type(self) -> Optional[CleaningType]:
+        """Return the type of the current cleaning task."""
+        cleaning_type = self._status["fullCleanType"]
+        if cleaning_type == "":
+            return None
+        return CleaningType(cleaning_type)
 
     @property
-    def clean_id(self) -> str:
-        """Clean id of the device."""
-        return self._status["cleanId"]
+    def cleaning_id(self) -> Optional[str]:
+        """Return the id of the current cleaning task."""
+        cleaning_id = self._status["cleanId"]
+        if cleaning_id == "":
+            return None
+        return cleaning_id
 
     @property
     def battery_level(self) -> int:

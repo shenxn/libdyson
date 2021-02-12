@@ -13,6 +13,7 @@ class CleaningType(Enum):
     """Cleaning type of the task."""
 
     Immediate = "Immediate"
+    Manual = "Manual"
     Scheduled = "Scheduled"
 
 

@@ -4,7 +4,12 @@ from unittest.mock import patch
 import pytest
 
 from libdyson import DEVICE_TYPE_360_EYE
-from libdyson.dyson_360_eye import Dyson360Eye, VacuumPowerMode, VacuumState
+from libdyson.dyson_360_eye import (
+    CleaningType,
+    Dyson360Eye,
+    VacuumPowerMode,
+    VacuumState,
+)
 
 from . import CREDENTIAL, HOST, SERIAL
 from .mocked_mqtt import MockedMQTT
@@ -41,8 +46,8 @@ def test_properties(mqtt_client: MockedMQTT):
     device.connect(HOST)
 
     assert device.state == VacuumState.INACTIVE_CHARGED
-    assert device.full_clean_type == ""
-    assert device.clean_id == ""
+    assert device.cleaning_type is None
+    assert device.cleaning_id is None
     assert device.power_mode == VacuumPowerMode.MAX
     assert device.position == (0, 0)
     assert device.is_charging is True
@@ -61,8 +66,8 @@ def test_properties(mqtt_client: MockedMQTT):
     }
     mqtt_client.state_change(new_status)
     assert device.state == VacuumState.FULL_CLEAN_RUNNING
-    assert device.full_clean_type == "immediate"
-    assert device.clean_id == clean_id
+    assert device.cleaning_type == CleaningType.IMMEDIATE
+    assert device.cleaning_id == clean_id
     assert device.power_mode == VacuumPowerMode.QUIET
     assert device.position is None
     assert device.is_charging is False

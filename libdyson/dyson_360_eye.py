@@ -123,6 +123,7 @@ class Dyson360Eye(DysonDevice):
             VacuumState.INACTIVE_CHARGING,
             VacuumState.INACTIVE_CHARGED,
             VacuumState.FULL_CLEAN_CHARGING,
+            VacuumState.MAPPING_CHARGING,
         ]
 
     def _update_status(self, payload: dict) -> None:

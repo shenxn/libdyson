@@ -5,20 +5,15 @@ from typing import Callable
 
 import requests
 
-from libdyson.cloud.account import (
-    DYSON_API_HEADERS,
-    DYSON_API_HOST,
-    DYSON_API_HOST_CN,
-    DYSON_CERT,
-)
+from libdyson.cloud.account import DYSON_API_HEADERS, DYSON_API_HOST, DYSON_CERT
 
 
 class MockedRequests:
     """Mocked requests library."""
 
-    def __init__(self, country):
+    def __init__(self):
         """Initialize the mock."""
-        self._country = country
+        self.host = DYSON_API_HOST
         self._handlers = {}
 
     @property
@@ -36,12 +31,8 @@ class MockedRequests:
         """Run mocked request function."""
         assert headers == DYSON_API_HEADERS
         assert verify == DYSON_CERT
-        if self.country == "CN":
-            host = DYSON_API_HOST_CN
-        else:
-            host = DYSON_API_HOST
-        assert url.startswith(host)
-        path = url[len(host) :]
+        assert url.startswith(self.host)
+        path = url[len(self.host) :]
         response = requests.Response()
         if not (method, path) in self._handlers:
             response.status_code = 404

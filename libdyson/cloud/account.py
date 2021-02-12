@@ -44,7 +44,7 @@ class HTTPBearerAuth(AuthBase):
 
     def __eq__(self, other):
         """Return if equal."""
-        self.token == getattr(other, "token", None)
+        return self.token == getattr(other, "token", None)
 
     def __ne__(self, other):
         """Return if not equal."""

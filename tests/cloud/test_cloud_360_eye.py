@@ -14,7 +14,7 @@ from .mocked_requests import MockedRequests
 SERIAL = "JH1-US-HBB1111A"
 
 
-def test_get_cleaning_history(mocked_requests: MockedRequests, country: str):
+def test_get_cleaning_history(mocked_requests: MockedRequests):
     """Test get cleaning history from the cloud."""
     cleaning1_id = "edcda2c9-5088-455e-b2ee-9422ef70afb2"
     cleaning2_id = "98cf2de1-190f-4e68-97b5-c57e7e0604d0"
@@ -77,7 +77,7 @@ def test_get_cleaning_history(mocked_requests: MockedRequests, country: str):
     assert task.is_interim is True
 
 
-def test_get_cleaning_map(mocked_requests: MockedRequests, country: str):
+def test_get_cleaning_map(mocked_requests: MockedRequests):
     """Test get cleaning map from the cloud."""
     cleaning_id = "edcda2c9-5088-455e-b2ee-9422ef70afb2"
     cleaning_map = b"mocked_png_image"

@@ -10,13 +10,20 @@ from libdyson.cloud import DysonAccount
 from libdyson.cloud.account import (
     API_PATH_DEVICES,
     API_PATH_LOGIN,
+    API_PATH_MOBILE_REQUEST,
+    API_PATH_MOBILE_VERIFY,
     API_PATH_USER_STATUS,
+    DYSON_API_HOST_CN,
+    DysonAccountCN,
+    HTTPBearerAuth,
 )
 from libdyson.exceptions import (
     DysonAuthRequired,
+    DysonInvalidAccountStatus,
     DysonInvalidAuth,
     DysonLoginFailure,
     DysonNetworkError,
+    DysonOTPTooFrequently,
     DysonServerError,
 )
 
@@ -26,7 +33,17 @@ from .utils import encrypt_credential
 
 EMAIL = "user@example.com"
 PASSWORD = "password"
+REGION = "GB"
+MOBILE = "+8613588888888"
+OTP = "000000"
+CHALLENGE_ID = "2b289d7f-1e0d-41e2-a0cb-56115eab6855"
 
+BEARER_TOKEN = "BEARER_TOKEN"
+AUTH_INFO_BEARER = {
+    "token": BEARER_TOKEN,
+    "tokenType": "Bearer",
+    "account": AUTH_ACCOUNT,
+}
 
 DEVICE1_SERIAL = "NK6-CN-HAA0000A"
 DEVICE1_NAME = "Device1"
@@ -71,7 +88,7 @@ DEVICES = [
 ]
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mocked_requests(mocked_requests: MockedRequests) -> MockedRequests:
     """Return mocked requests library."""
 
@@ -79,7 +96,7 @@ def mocked_requests(mocked_requests: MockedRequests) -> MockedRequests:
         params: dict, auth: Optional[AuthBase], **kwargs
     ) -> Tuple[int, Optional[dict]]:
         assert auth is None
-        assert params["country"] == mocked_requests.country
+        assert params["country"] == REGION
         if params["email"] == EMAIL:
             return (200, {"accountStatus": "ACTIVE"})
         return (200, {"accountStatus": "UNREGISTERED"})
@@ -88,10 +105,29 @@ def mocked_requests(mocked_requests: MockedRequests) -> MockedRequests:
         params: dict, json: dict, auth: Optional[AuthBase]
     ) -> Tuple[int, Optional[dict]]:
         assert auth is None
-        assert params == {"country": mocked_requests.country}
+        assert params == {"country": REGION}
         if json["Email"] == EMAIL and json["Password"] == PASSWORD:
             return (200, AUTH_INFO)
         return (401, {"Message": "Unable to authenticate user."})
+
+    def _handle_mobile_request(
+        json: dict, auth: Optional[AuthBase], **kwargs
+    ) -> Tuple[int, Optional[dict]]:
+        assert auth is None
+        assert json == {
+            "mobile": MOBILE,
+        }
+        return (200, {"challengeId": CHALLENGE_ID})
+
+    def _handle_mobile_verify(
+        json: dict, auth: Optional[AuthBase], **kwargs
+    ) -> Tuple[int, Optional[dict]]:
+        assert auth is None
+        assert json["mobile"] == MOBILE
+        assert json["challengeId"] == CHALLENGE_ID
+        if json["otpCode"] == OTP:
+            return (200, AUTH_INFO_BEARER)
+        return (400, None)
 
     def _devices_handler(
         auth: Optional[AuthBase], **kwargs
@@ -100,29 +136,40 @@ def mocked_requests(mocked_requests: MockedRequests) -> MockedRequests:
             not isinstance(auth, HTTPBasicAuth)
             or auth.username != AUTH_ACCOUNT
             or auth.password != AUTH_PASSWORD
-        ):
+        ) and (not isinstance(auth, HTTPBearerAuth) or auth.token != BEARER_TOKEN):
             return (401, None)
         return (200, DEVICES)
 
     mocked_requests.register_handler("GET", API_PATH_USER_STATUS, _user_status_handler)
     mocked_requests.register_handler("POST", API_PATH_LOGIN, _login_handler)
+    mocked_requests.register_handler(
+        "POST", API_PATH_MOBILE_REQUEST, _handle_mobile_request
+    )
+    mocked_requests.register_handler(
+        "POST", API_PATH_MOBILE_VERIFY, _handle_mobile_verify
+    )
     mocked_requests.register_handler("GET", API_PATH_DEVICES, _devices_handler)
     return mocked_requests
 
 
-def test_account(country: str):
+def test_account():
     """Test account functionalities."""
     account = DysonAccount()
 
-    # Login failure
-    with pytest.raises(DysonLoginFailure):
-        account.login_email_password(EMAIL, "wrong_pass", country)
+    # Incorrect email
+    with pytest.raises(DysonInvalidAccountStatus):
+        account.login_email_password("unregistered@example.com", PASSWORD, REGION)
     assert account.auth_info is None
     with pytest.raises(DysonAuthRequired):
         account.devices()
 
+    # Incorrect password
+    with pytest.raises(DysonLoginFailure):
+        account.login_email_password(EMAIL, "wrong_pass", REGION)
+    assert account.auth_info is None
+
     # Login succeed
-    account.login_email_password(EMAIL, PASSWORD, country)
+    account.login_email_password(EMAIL, PASSWORD, REGION)
     assert account.auth_info == AUTH_INFO
 
     # Devices
@@ -145,7 +192,7 @@ def test_account(country: str):
     assert devices[1].new_version_available is True
 
 
-def test_account_auth_info(country: str):
+def test_account_auth_info():
     """Test initialize account with auth info."""
     account = DysonAccount(AUTH_INFO)
     devices = account.devices()
@@ -167,7 +214,78 @@ def test_account_auth_info(country: str):
         account.devices()
 
 
-def test_network_error(mocked_requests: MockedRequests, country: str):
+def test_login_mobile(mocked_requests: MockedRequests):
+    """Test logging into account using phone number and otp code."""
+    mocked_requests.host = DYSON_API_HOST_CN
+
+    account = DysonAccountCN()
+    verify = account.login_mobile_otp(MOBILE)
+
+    # Incorrect OTP
+    with pytest.raises(DysonLoginFailure):
+        verify("111111")
+    assert account.auth_info is None
+
+    # Correct OTP
+    verify(OTP)
+    assert account.auth_info == AUTH_INFO_BEARER
+    account.devices()
+
+
+def test_login_mobile_request_too_frequently(mocked_requests: MockedRequests):
+    """Test request for otp code too frequently."""
+
+    def _handle_mobile_request(
+        json: dict, auth: Optional[AuthBase], **kwargs
+    ) -> Tuple[int, Optional[dict]]:
+        assert auth is None
+        return (429, None)
+
+    mocked_requests.host = DYSON_API_HOST_CN
+    mocked_requests.register_handler(
+        "POST", API_PATH_MOBILE_REQUEST, _handle_mobile_request
+    )
+
+    account = DysonAccountCN()
+    with pytest.raises(DysonOTPTooFrequently):
+        account.login_mobile_otp(MOBILE)
+
+
+def test_account_auth_info_bearer(mocked_requests: MockedRequests):
+    """Test initialize account with bearer auth info."""
+    mocked_requests.host = DYSON_API_HOST_CN
+    account = DysonAccountCN(AUTH_INFO_BEARER)
+    devices = account.devices()
+    assert len(devices) == 2
+
+    # Old auth
+    account = DysonAccountCN(AUTH_INFO)
+    devices = account.devices()
+    assert len(devices) == 2
+
+    # Invalid auth
+    account = DysonAccountCN(
+        {
+            "token": "invalid",
+            "tokenType": "Bearer",
+            "account": "invalid",
+        },
+    )
+    with pytest.raises(DysonInvalidAuth):
+        account.devices()
+
+    # No auth
+    account = DysonAccountCN()
+    with pytest.raises(DysonAuthRequired):
+        account.devices()
+
+    # Not supported auth info
+    account = DysonAccountCN({"token": "TOKEN", "tokenType": "Custom"})
+    with pytest.raises(DysonAuthRequired):
+        account.devices()
+
+
+def test_network_error(mocked_requests: MockedRequests):
     """Test network error handling."""
 
     def _handler_network_error(**kwargs):
@@ -178,13 +296,13 @@ def test_network_error(mocked_requests: MockedRequests, country: str):
 
     account = DysonAccount()
     with pytest.raises(DysonNetworkError):
-        account.login_email_password(EMAIL, PASSWORD, country)
+        account.login_email_password(EMAIL, PASSWORD, REGION)
     account = DysonAccount(AUTH_INFO)
     with pytest.raises(DysonNetworkError):
         account.devices()
 
 
-def test_server_error(mocked_requests: MockedRequests, country: str):
+def test_server_error(mocked_requests: MockedRequests):
     """Test cloud server error handling."""
 
     def _handler_network_error(**kwargs):
@@ -195,7 +313,7 @@ def test_server_error(mocked_requests: MockedRequests, country: str):
 
     account = DysonAccount()
     with pytest.raises(DysonServerError):
-        account.login_email_password(EMAIL, PASSWORD, country)
+        account.login_email_password(EMAIL, PASSWORD, REGION)
     account = DysonAccount(AUTH_INFO)
     with pytest.raises(DysonServerError):
         account.devices()

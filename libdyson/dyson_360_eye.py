@@ -93,7 +93,7 @@ class Dyson360Eye(DysonDevice):
             Dyson360EyeState.FULL_CLEAN_CHARGING,
         ]
 
-    def _update_state(self, payload: dict) -> None:
+    def _update_status(self, payload: dict) -> None:
         state = payload["state"] if "state" in payload else payload["newstate"]
         self._set_enum_attr(state, "state", Dyson360EyeState)
         self._set_enum_attr(

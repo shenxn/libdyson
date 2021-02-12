@@ -47,7 +47,7 @@ class _TestDevice(DysonDevice):
     def _status_topic(self) -> str:
         return f"{DEVICE_TYPE}/{self._serial}/status"
 
-    def _update_state(self, payload: dict) -> None:
+    def _update_status(self, payload: dict) -> None:
         payload.pop("msg")
         payload.pop("time")
         self.status = payload

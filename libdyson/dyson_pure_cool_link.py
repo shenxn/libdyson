@@ -168,7 +168,7 @@ class DysonPureCoolLink(DysonDevice):
             for callback in self._callbacks:
                 callback(MessageType.ENVIRONMENTAL)
 
-    def _update_state(self, payload: dict) -> None:
+    def _update_status(self, payload: dict) -> None:
         state = payload["product-state"]
         self._fan_mode = FanMode(self._get_field_value(state, "fmod"))
         self._fan_state = self._get_field_value(state, "fnst") == "FAN"

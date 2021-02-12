@@ -33,7 +33,6 @@ class DysonDevice:
         self._mqtt_client = None
         self._connected = threading.Event()
         self._disconnected = threading.Event()
-        self._status = None
         self._status_data_available = threading.Event()
         self._callbacks = []
 
@@ -134,18 +133,18 @@ class DysonDevice:
     def _handle_message(self, payload: dict) -> None:
         if payload["msg"] in ["CURRENT-STATE", "STATE-CHANGE"]:
             _LOGGER.debug("New state: %s", payload)
-            self._update_state(payload)
+            self._update_status(payload)
             if not self._status_data_available.is_set():
                 self._status_data_available.set()
             for callback in self._callbacks:
                 callback(MessageType.STATE)
 
     @abstractmethod
-    def _update_state(self, payload: dict) -> None:
-        """Update the device state."""
+    def _update_status(self, payload: dict) -> None:
+        """Update the device status."""
 
     def _set_enum_attr(self, value: str, attr: str, enum: Enum) -> None:
-        """Update state based on enum."""
+        """Update status based on enum."""
         try:
             setattr(self, f"_{attr}", enum(value))
         except ValueError:

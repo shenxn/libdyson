@@ -5,8 +5,8 @@ import pytest
 
 from libdyson import (
     DEVICE_TYPE_360_EYE,
-    DEVICE_TYPE_PURE_COOL_LINK_DESKTOP,
-    DEVICE_TYPE_PURE_COOL_LINK_TOWER,
+    DEVICE_TYPE_PURE_COOL_LINK,
+    DEVICE_TYPE_PURE_COOL_LINK_DESK,
     Dyson360Eye,
     DysonDevice,
     DysonPureCool,
@@ -15,8 +15,8 @@ from libdyson import (
 )
 from libdyson.const import (
     DEVICE_TYPE_PURE_COOL,
-    DEVICE_TYPE_PURE_COOL_DESKTOP,
-    DEVICE_TYPE_PURE_COOL_HUMIDITY,
+    DEVICE_TYPE_PURE_COOL_DESK,
+    DEVICE_TYPE_PURE_HUMIDITY_COOL,
 )
 
 from . import CREDENTIAL, SERIAL
@@ -26,11 +26,11 @@ from . import CREDENTIAL, SERIAL
     "device_type,class_type",
     [
         (DEVICE_TYPE_360_EYE, Dyson360Eye),
-        (DEVICE_TYPE_PURE_COOL_LINK_DESKTOP, DysonPureCoolLink),
-        (DEVICE_TYPE_PURE_COOL_LINK_TOWER, DysonPureCoolLink),
+        (DEVICE_TYPE_PURE_COOL_LINK_DESK, DysonPureCoolLink),
+        (DEVICE_TYPE_PURE_COOL_LINK, DysonPureCoolLink),
         (DEVICE_TYPE_PURE_COOL, DysonPureCool),
-        (DEVICE_TYPE_PURE_COOL_DESKTOP, DysonPureCool),
-        (DEVICE_TYPE_PURE_COOL_HUMIDITY, DysonPureCool),
+        (DEVICE_TYPE_PURE_COOL_DESK, DysonPureCool),
+        (DEVICE_TYPE_PURE_HUMIDITY_COOL, DysonPureCool),
     ],
 )
 def test_get_device(device_type: str, class_type: Type[DysonDevice]):

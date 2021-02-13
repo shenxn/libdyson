@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from libdyson.const import (
-    DEVICE_TYPE_PURE_COOL_LINK_DESKTOP,
+    DEVICE_TYPE_PURE_COOL_LINK_DESK,
     ENVIRONMENTAL_OFF,
     MessageType,
 )
@@ -16,7 +16,7 @@ from libdyson.exceptions import DysonConnectTimeout, DysonNotConnected
 from . import CREDENTIAL, HOST, SERIAL
 from .mocked_mqtt import MockedMQTT
 
-DEVICE_TYPE = DEVICE_TYPE_PURE_COOL_LINK_DESKTOP
+DEVICE_TYPE = DEVICE_TYPE_PURE_COOL_LINK_DESK
 
 STATUS = {
     "mode-reason": "RAPP",

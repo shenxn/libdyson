@@ -2,7 +2,7 @@
 
 import pytest
 
-from libdyson import DEVICE_TYPE_PURE_COOL_LINK_DESKTOP
+from libdyson import DEVICE_TYPE_PURE_COOL_LINK_DESK
 from libdyson.const import ENVIRONMENTAL_INIT, AirQualityTarget
 from libdyson.dyson_pure_cool_link import DysonPureCoolLink
 
@@ -10,7 +10,7 @@ from . import CREDENTIAL, HOST, SERIAL
 from .mocked_mqtt import MockedMQTT
 from .test_fan_device import assert_command
 
-DEVICE_TYPE = DEVICE_TYPE_PURE_COOL_LINK_DESKTOP
+DEVICE_TYPE = DEVICE_TYPE_PURE_COOL_LINK_DESK
 
 STATUS = {
     "mode-reason": "RAPP",

@@ -33,8 +33,8 @@ class DysonPureCoolLink(DysonFanDevice):
         return int(self._get_field_value(self._status, "filf"))
 
     @property
-    def particulars(self) -> int:
-        """Return particulars in unknown unit."""
+    def particulates(self) -> int:
+        """Return particulate matter in unknown unit."""
         return self._get_environmental_field_value("pact")
 
     @property

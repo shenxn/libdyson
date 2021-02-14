@@ -55,7 +55,7 @@ def test_properties(mqtt_client: MockedMQTT):
     assert device.filter_life == 1500
 
     # Environmental
-    assert device.particulars == 3
+    assert device.particulates == 3
     assert device.volatile_organic_compounds == 4
 
     new_status = {
@@ -91,7 +91,7 @@ def test_properties(mqtt_client: MockedMQTT):
         }
     }
     device.request_environmental_data()
-    assert device.particulars == 5
+    assert device.particulates == 5
     assert device.volatile_organic_compounds == ENVIRONMENTAL_INIT
 
 

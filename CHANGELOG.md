@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0
+
+- Add support to Dyson Pure Cool
+- Add device type names dictionary
+- Add more states to VacuumState
+- Code quality improvement
+
 ## 0.3.3
 
 - Fix wheel building to include certificate

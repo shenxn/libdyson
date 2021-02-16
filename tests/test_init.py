@@ -9,15 +9,17 @@ from libdyson import (
     DEVICE_TYPE_PURE_COOL_DESK,
     DEVICE_TYPE_PURE_COOL_LINK,
     DEVICE_TYPE_PURE_COOL_LINK_DESK,
+    DEVICE_TYPE_PURE_HOT_COOL,
     DEVICE_TYPE_PURE_HOT_COOL_LINK,
     DEVICE_TYPE_PURE_HUMIDITY_COOL,
     Dyson360Eye,
     DysonDevice,
     DysonPureCool,
     DysonPureCoolLink,
+    DysonPureHotCool,
+    DysonPureHotCoolLink,
     get_device,
 )
-from libdyson.dyson_pure_hot_cool_link import DysonPureHotCoolLink
 
 from . import CREDENTIAL, SERIAL
 
@@ -32,6 +34,7 @@ from . import CREDENTIAL, SERIAL
         (DEVICE_TYPE_PURE_COOL_DESK, DysonPureCool),
         (DEVICE_TYPE_PURE_HUMIDITY_COOL, DysonPureCool),
         (DEVICE_TYPE_PURE_HOT_COOL_LINK, DysonPureHotCoolLink),
+        (DEVICE_TYPE_PURE_HOT_COOL, DysonPureHotCool),
     ],
 )
 def test_get_device(device_type: str, class_type: Type[DysonDevice]):

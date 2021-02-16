@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0
+
+- Add support to Dyson Pure Hot+Cool
+- Add support to Dyson Pure Hot+Cool Link
+
 ## 0.4.0
 
 - Add support to Dyson Pure Cool

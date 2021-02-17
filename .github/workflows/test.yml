@@ -46,3 +46,5 @@ jobs:
           pip install -r requirements_test.txt
       - name: Black
         run: black --safe libdyson tests
+      - name: yamllint
+        run: yamllint .

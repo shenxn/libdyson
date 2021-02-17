@@ -60,3 +60,7 @@ repos:
     hooks:
       - id: mypy
         files: libdyson/.+\.py
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.24.2
+    hooks:
+      - id: yamllint

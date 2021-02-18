@@ -1,4 +1,15 @@
 """Setup script."""
 import setuptools
 
-setuptools.setup(include_package_data=True)
+REQUIRES = [
+    "paho_mqtt",
+    "cryptography",
+    "requests",
+    "zeroconf",
+    "attr",
+]
+
+setuptools.setup(
+    include_package_data=True,
+    install_requires=REQUIRES,
+)

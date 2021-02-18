@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1
+
+- Add dependencies to PyPI package
+
 ## 0.5.0
 
 - Add support to Dyson Pure Hot+Cool

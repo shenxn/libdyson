@@ -3,6 +3,7 @@
 ## 0.5.2
 
 - Callback on connect and disconnect
+- Remove TM from device names
 
 ## 0.5.1
 

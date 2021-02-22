@@ -88,8 +88,12 @@ class DysonDevice:
                 client.subscribe(self._status_topic)
             self._connected.set()
 
+        def _on_disconnect(client, userdata, rc):
+            _LOGGER.debug(f"Disconnected with result code {str(rc)}")
+        self._disconnected.set()
+
         self._mqtt_client.on_connect = _on_connect
-        self._mqtt_client.on_disconnect = self._on_disconnect
+        self._mqtt_client.on_disconnect = _on_disconnect
         self._mqtt_client.on_message = self._on_message
         self._mqtt_client.connect_async(host)
         self._mqtt_client.loop_start()
@@ -102,6 +106,7 @@ class DysonDevice:
             _LOGGER.info("Connected to device %s", self._serial)
             if self._request_first_data():
                 self._mqtt_client.on_connect = self._on_connect
+                self._mqtt_client.on_disconnect = self._on_disconnect
                 return
 
             # Close connection if connected but failed to get data

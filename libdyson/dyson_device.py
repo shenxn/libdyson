@@ -101,6 +101,7 @@ class DysonDevice:
 
             _LOGGER.info("Connected to device %s", self._serial)
             if self._request_first_data():
+                self._mqtt_client.on_connect = self._on_connect
                 return
 
             # Close connection if connected but failed to get data
@@ -126,9 +127,19 @@ class DysonDevice:
         if callback in self._callbacks:
             self._callbacks.remove(callback)
 
+    def _on_connect(self, client: mqtt.Client, userdata: Any, flags, rc):
+        _LOGGER.debug("Connected with result code %d", rc)
+        self._disconnected.clear()
+        self._connected.set()
+        for callback in self._callbacks:
+            callback(MessageType.STATE)
+
     def _on_disconnect(self, client, userdata, rc):
         _LOGGER.debug(f"Disconnected with result code {str(rc)}")
+        self._connected.clear()
         self._disconnected.set()
+        for callback in self._callbacks:
+            callback(MessageType.STATE)
 
     def _on_message(self, client, userdata: Any, msg: mqtt.MQTTMessage):
         payload = json.loads(msg.payload.decode("utf-8"))

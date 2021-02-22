@@ -11,12 +11,12 @@ DEVICE_TYPE_PURE_HOT_COOL_LINK = "455"
 DEVICE_TYPE_PURE_HOT_COOL = "527"
 
 DEVICE_TYPE_NAMES = {
-    DEVICE_TYPE_360_EYE: "360 Eye™ robot vacuum",
-    DEVICE_TYPE_PURE_COOL_LINK: "Pure Cool Link™",
-    DEVICE_TYPE_PURE_COOL_LINK_DESK: "Pure Cool Link™ Desk",
-    DEVICE_TYPE_PURE_COOL: "Pure Cool™",
-    DEVICE_TYPE_PURE_COOL_DESK: "Pure Cool™ Desk",
-    DEVICE_TYPE_PURE_HUMIDITY_COOL: "Pure Humidity+Cool™",
+    DEVICE_TYPE_360_EYE: "360 Eye robot vacuum",
+    DEVICE_TYPE_PURE_COOL_LINK: "Pure Cool Link",
+    DEVICE_TYPE_PURE_COOL_LINK_DESK: "Pure Cool Link Desk",
+    DEVICE_TYPE_PURE_COOL: "Pure Cool",
+    DEVICE_TYPE_PURE_COOL_DESK: "Pure Cool Desk",
+    DEVICE_TYPE_PURE_HUMIDITY_COOL: "Pure Humidity+Cool",
 }
 
 ENVIRONMENTAL_OFF = -1

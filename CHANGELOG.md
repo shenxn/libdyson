@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2
+
+- Callback on connect and disconnect
+
 ## 0.5.1
 
 - Add dependencies to PyPI package

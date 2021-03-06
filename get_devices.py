@@ -19,8 +19,10 @@ elif region == "2":
     region = input("Region code: ")
     account = DysonAccount()
     email = input("Email: ")
+    verify = account.login_email_otp(email, region)
     password = getpass()
-    account.login_email_password(email, password, region)
+    otp = input("Verification code: ")
+    verify(otp, password)
 else:
     print(f"Invalid input {region}")
     exit(1)

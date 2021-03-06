@@ -24,8 +24,9 @@ DYSON_API_HEADERS = {
     "User-Agent": "Dalvik/2.1.0 (Linux; U; Android 6.0; Android SDK built for x86_64 Build/MASTER)"
 }
 
-API_PATH_USER_STATUS = "/v1/userregistration/userstatus"
-API_PATH_LOGIN = "/v1/userregistration/authenticate"
+API_PATH_USER_STATUS = "/v3/userregistration/email/userstatus"
+API_PATH_EMAIL_REQUEST = "/v3/userregistration/email/auth"
+API_PATH_EMAIL_VERIFY = "/v3/userregistration/email/verify"
 API_PATH_MOBILE_REQUEST = "/v3/userregistration/mobile/auth"
 API_PATH_MOBILE_VERIFY = "/v3/userregistration/mobile/verify"
 API_PATH_DEVICES = "/v2/provisioningservice/manifest"
@@ -77,10 +78,17 @@ class DysonAccount:
     def _auth(self) -> Optional[AuthBase]:
         if self.auth_info is None:
             return None
-        return HTTPBasicAuth(
-            self.auth_info["Account"],
-            self.auth_info["Password"],
-        )
+        # Although basic auth is no longer used by new logins,
+        # we still need this for backward capability to already
+        # stored auth info.
+        if "Password" in self.auth_info:
+            return HTTPBasicAuth(
+                self.auth_info["Account"],
+                self.auth_info["Password"],
+            )
+        elif self.auth_info.get("tokenType") == "Bearer":
+            return HTTPBearerAuth(self.auth_info["token"])
+        return None
 
     def request(
         self,
@@ -111,34 +119,51 @@ class DysonAccount:
             raise DysonServerError
         return response
 
-    def login_email_password(self, email: str, password: str, region: str) -> dict:
-        """Login to Dyson cloud account using traditional email and password."""
+    def login_email_otp(self, email: str, region: str) -> Callable[[str], dict]:
+        """Login using email and OTP code."""
+        # Check account status first. This is expected by the cloud API.
         response = self.request(
-            "GET",
+            "POST",
             API_PATH_USER_STATUS,
-            params={"country": region, "email": email},
+            params={"country": region},
+            data={"email": email},
             auth=False,
         )
         account_status = response.json()["accountStatus"]
         if account_status != "ACTIVE":
             raise DysonInvalidAccountStatus(account_status)
 
-        try:
+        response = self.request(
+            "POST",
+            API_PATH_EMAIL_REQUEST,
+            params={"country": region, "culture": "en-US"},
+            data={"email": email},
+            auth=False,
+        )
+        if response.status_code == 429:
+            raise DysonOTPTooFrequently
+
+        challenge_id = response.json()["challengeId"]
+
+        def _verify(otp_code: str, password: str):
             response = self.request(
                 "POST",
-                API_PATH_LOGIN,
-                params={"country": region},
+                API_PATH_EMAIL_VERIFY,
                 data={
-                    "Email": email,
-                    "Password": password,
+                    "email": email,
+                    "password": password,
+                    "challengeId": challenge_id,
+                    "otpCode": otp_code,
                 },
                 auth=False,
             )
-        except DysonInvalidAuth:
-            raise DysonLoginFailure
-        body = response.json()
-        self._auth_info = body
-        return self._auth_info
+            if response.status_code == 400:
+                raise DysonLoginFailure
+            body = response.json()
+            self._auth_info = body
+            return self._auth_info
+
+        return _verify
 
     def devices(self) -> List[DysonDeviceInfo]:
         """Get device info from cloud account."""
@@ -153,16 +178,6 @@ class DysonAccountCN(DysonAccount):
     """Dyson account in Mainland China."""
 
     _HOST = DYSON_API_HOST_CN
-
-    @property
-    def _auth(self) -> Optional[AuthBase]:
-        if self.auth_info is None:
-            return None
-        if "Password" in self.auth_info:
-            return super()._auth
-        elif self.auth_info.get("tokenType") == "Bearer":
-            return HTTPBearerAuth(self.auth_info["token"])
-        return None
 
     def login_mobile_otp(self, mobile: str) -> Callable[[str], dict]:
         """Login using phone number and OTP code."""

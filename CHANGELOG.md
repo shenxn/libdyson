@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.1
+
+- Change typo (attr -> attrs) in the dependency list
+
 ## 0.6.0
 
 - Add Hot+Cool devices into device type names

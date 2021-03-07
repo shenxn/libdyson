@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.0
+
+- Add Hot+Cool devices into device type names
+- Login using email OTP
+
 ## 0.5.2
 
 - Callback on connect and disconnect

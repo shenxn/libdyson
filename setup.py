@@ -6,7 +6,7 @@ REQUIRES = [
     "cryptography",
     "requests",
     "zeroconf",
-    "attr",
+    "attrs",
 ]
 
 setuptools.setup(

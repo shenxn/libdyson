@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.2
+
+- Report `is_on` based on `fpwr` (Pure Cool) and `fmod` (Pure Cool Link) instead of fan `fnst`
+- Add a property `fan_state` (`fnst`) to fan devices
+
 ## 0.6.1
 
 - Change typo (attr -> attrs) in the dependency list

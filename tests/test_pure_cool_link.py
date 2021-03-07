@@ -49,6 +49,7 @@ def test_properties(mqtt_client: MockedMQTT):
     device.connect(HOST)
 
     # Status
+    assert device.is_on is False
     assert device.auto_mode is False
     assert device.oscillation is False
     assert device.air_quality_target == AirQualityTarget.DEFAULT
@@ -76,6 +77,7 @@ def test_properties(mqtt_client: MockedMQTT):
         "scheduler": {"srsc": "8773", "dstv": "0000", "tzid": "0001"},
     }
     mqtt_client.state_change(new_status)
+    assert device.is_on is True
     assert device.auto_mode is True
     assert device.oscillation is True
     assert device.air_quality_target == AirQualityTarget.VERY_SENSITIVE

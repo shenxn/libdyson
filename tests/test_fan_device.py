@@ -50,7 +50,7 @@ def test_properties(mqtt_client: MockedMQTT):
 
     # Status
     assert device.device_type == DEVICE_TYPE
-    assert device.is_on is False
+    assert device.fan_state is False
     assert device.speed == 1
     assert device.night_mode is False
     assert device.continuous_monitoring is False
@@ -78,7 +78,7 @@ def test_properties(mqtt_client: MockedMQTT):
         "scheduler": {"srsc": "8773", "dstv": "0000", "tzid": "0001"},
     }
     mqtt_client.state_change(new_status)
-    assert device.is_on is True
+    assert device.fan_state is True
     assert device.speed is None
     assert device.night_mode is True
     assert device.continuous_monitoring is True

@@ -9,8 +9,8 @@ class DysonPureCool(DysonFanDevice):
     """Dyson Pure Cool fan."""
 
     @property
-    def fan_power(self) -> bool:
-        """Return fan power of the device."""
+    def is_on(self) -> bool:
+        """Return if the device is on."""
         return self._get_field_value(self._status, "fpwr") == "ON"
 
     @property
@@ -135,14 +135,14 @@ class DysonPureCool(DysonFanDevice):
     def enable_continuous_monitoring(self) -> None:
         """Turn on continuous monitoring."""
         self._set_configuration(
-            fpwr="ON" if self.fan_power else "OFF",  # Not sure about this
+            fpwr="ON" if self.is_on else "OFF",  # Not sure about this
             rhtm="ON",
         )
 
     def disable_continuous_monitoring(self) -> None:
         """Turn off continuous monitoring."""
         self._set_configuration(
-            fpwr="ON" if self.fan_power else "OFF",
+            fpwr="ON" if self.is_on else "OFF",
             rhtm="OFF",
         )
 

@@ -90,6 +90,7 @@ class DysonDevice:
 
         def _on_disconnect(client, userdata, rc):
             _LOGGER.debug(f"Disconnected with result code {str(rc)}")
+
         self._disconnected.set()
 
         self._mqtt_client.on_connect = _on_connect
@@ -208,8 +209,8 @@ class DysonFanDevice(DysonDevice):
         return f"{self.device_type}/{self._serial}/status/current"
 
     @property
-    def is_on(self) -> bool:
-        """Return if the device is on."""
+    def fan_state(self) -> bool:
+        """Return if the fan is running."""
         return self._get_field_value(self._status, "fnst") == "FAN"
 
     @property
@@ -219,6 +220,11 @@ class DysonFanDevice(DysonDevice):
         if speed == "AUTO":
             return None
         return int(speed)
+
+    @property
+    @abstractmethod
+    def is_on(self) -> bool:
+        """Return if the device is on."""
 
     @property
     @abstractmethod

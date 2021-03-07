@@ -64,7 +64,7 @@ def test_properties(mqtt_client: MockedMQTT):
     device.connect(HOST)
 
     # Status
-    assert device.fan_power is False
+    assert device.is_on is False
     assert device.auto_mode is False
     assert device.oscillation is False
     assert device.oscillation_status is False
@@ -109,7 +109,7 @@ def test_properties(mqtt_client: MockedMQTT):
         "scheduler": {"srsc": "000000005b1792f0", "dstv": "0001", "tzid": "0001"},
     }
     mqtt_client.state_change(new_status)
-    assert device.fan_power is True
+    assert device.is_on is True
     assert device.auto_mode is True
     assert device.oscillation is True
     assert device.oscillation_status is True

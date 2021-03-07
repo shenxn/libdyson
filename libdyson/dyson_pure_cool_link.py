@@ -13,6 +13,11 @@ class DysonPureCoolLink(DysonFanDevice):
         return self._get_field_value(self._status, "fmod")
 
     @property
+    def is_on(self) -> bool:
+        """Return if the device is on."""
+        return self.fan_mode in ["FAN", "AUTO"]
+
+    @property
     def auto_mode(self) -> bool:
         """Return auto mode status."""
         return self.fan_mode == "AUTO"

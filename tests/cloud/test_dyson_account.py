@@ -238,6 +238,24 @@ def test_account_auth_info():
         account.devices()
 
 
+def test_login_email_request_too_frequently(mocked_requests: MockedRequests):
+    """Test request for otp code too frequently."""
+
+    def _handle_email_request(
+        json: dict, auth: Optional[AuthBase], **kwargs
+    ) -> Tuple[int, Optional[dict]]:
+        assert auth is None
+        return (429, None)
+
+    mocked_requests.register_handler(
+        "POST", API_PATH_EMAIL_REQUEST, _handle_email_request
+    )
+
+    account = DysonAccount()
+    with pytest.raises(DysonOTPTooFrequently):
+        account.login_email_otp(EMAIL, REGION)
+
+
 def test_login_mobile(mocked_requests: MockedRequests):
     """Test logging into account using phone number and otp code."""
     mocked_requests.host = DYSON_API_HOST_CN

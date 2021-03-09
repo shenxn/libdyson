@@ -23,6 +23,7 @@ from .dyson_pure_cool import DysonPureCool
 from .dyson_pure_cool_link import DysonPureCoolLink
 from .dyson_pure_hot_cool import DysonPureHotCool
 from .dyson_pure_hot_cool_link import DysonPureHotCoolLink
+from .utils import get_mqtt_password_from_wifi_password  # noqa: F401
 
 
 def get_device(serial: str, credential: str, device_type: str) -> Optional[DysonDevice]:

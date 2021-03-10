@@ -86,6 +86,16 @@ DEVICES = [
         "ProductType": DEVICE2_PRODUCT_TYPE,
         "ConnectionType": "wss",
     },
+    {
+        "Serial": "YS4-EU-MCA0660A",
+        "Name": "Device3",
+        "Version": "13.80.22",
+        "LocalCredentials": None,
+        "AutoUpdate": True,
+        "NewVersionAvailable": False,
+        "ProductType": "552",
+        "ConnectionType": "wss",
+    },
 ]
 
 

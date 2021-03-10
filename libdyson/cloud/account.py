@@ -170,6 +170,11 @@ class DysonAccount:
         devices = []
         response = self.request("GET", API_PATH_DEVICES)
         for raw in response.json():
+            if raw.get("LocalCredentials") is None:
+                # Lightcycle lights don't have LocalCredentials.
+                # They're not supported so just skip.
+                # See https://github.com/shenxn/libdyson/issues/2 for more info
+                continue
             devices.append(DysonDeviceInfo.from_raw(raw))
         return devices
 

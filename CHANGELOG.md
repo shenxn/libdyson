@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.0
+
+- Add function to retrieve MQTT username and password (local credential) from device WiFi SSID and password
+- Skip Lightcycle lights when getting device info from the account so the function does not crash
+
 ## 0.6.2
 
 - Report `is_on` based on `fpwr` (Pure Cool) and `fmod` (Pure Cool Link) instead of fan `fnst`

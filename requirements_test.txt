@@ -1,4 +1,4 @@
-pytest
+pytest>=6.2.0
 pytest-cov
 pre-commit
 black

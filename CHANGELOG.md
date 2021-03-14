@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.3
+
+- Rename `oscillation_angle` to `oscillation_mode` for Pure Humidity+Cool
+
 ## 0.7.2
 
 - Rename `humidity_cool` to `humidify_cool` (Fix typo)

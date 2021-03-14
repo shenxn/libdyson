@@ -7,6 +7,7 @@ import time
 from typing import Tuple
 
 from .const import DEVICE_TYPE_360_EYE
+from .exceptions import DysonFailedToParseWifiInfo
 
 
 def mqtt_time():
@@ -14,12 +15,11 @@ def mqtt_time():
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
-def get_mqtt_password_from_wifi_password(wifi_password: str) -> str:
-    """Calculate MQTT password from WiFi password."""
+def get_credential_from_wifi_password(wifi_password: str) -> str:
+    """Calculate MQTT credential from WiFi password."""
     hash_ = hashlib.sha512()
     hash_.update(wifi_password.encode("utf-8"))
-    password_hash = base64.b64encode(hash_.digest()).decode("utf-8")
-    return password_hash
+    return base64.b64encode(hash_.digest()).decode("utf-8")
 
 
 def get_mqtt_info_from_wifi_info(
@@ -29,18 +29,16 @@ def get_mqtt_info_from_wifi_info(
     result = re.match(r"^[0-9A-Z]{3}-[A-Z]{2}-[0-9A-Z]{8}$", wifi_ssid)
     if result is not None:
         serial = wifi_ssid
-        model = DEVICE_TYPE_360_EYE
+        device_type = DEVICE_TYPE_360_EYE
     else:
         result = re.match(
             r"^DYSON-([0-9A-Z]{3}-[A-Z]{2}-[0-9A-Z]{8})-([0-9]{3})$", wifi_ssid
         )
         if result is not None:
             serial = result.group(1)
-            model = result.group(2)
+            device_type = result.group(2)
         else:
-            print(
-                "Failed to parse SSID. Please report this to https://github.com/shenxn/libdyson/issues/new"
-            )
+            raise DysonFailedToParseWifiInfo
 
-    password = get_mqtt_password_from_wifi_password(wifi_password)
-    return serial, password, model
+    credential = get_credential_from_wifi_password(wifi_password)
+    return serial, credential, device_type

@@ -42,8 +42,12 @@ class DysonNotConnected(DysonException):
 
 
 class DysonInvalidCredential(DysonException):
-    """Requesents invalid mqtt credential."""
+    """Represents invalid mqtt credential."""
 
 
 class DysonConnectionRefused(DysonException):
     """Represents mqtt connection refused by the server."""
+
+
+class DysonFailedToParseWifiInfo(DysonException):
+    """Represents failed to parse WiFi information."""

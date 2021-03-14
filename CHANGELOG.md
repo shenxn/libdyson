@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.1
+
+- Improve `get_mqtt_info_from_wifi_info`
+
 ## 0.7.0
 
 - Add function to retrieve MQTT username and password (local credential) from device WiFi SSID and password

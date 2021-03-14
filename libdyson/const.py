@@ -40,3 +40,11 @@ class AirQualityTarget(Enum):
     SENSITIVE = "0003"
     DEFAULT = "0002"
     VERY_SENSITIVE = "0001"
+
+
+class WaterHardness(Enum):
+    """Water Hardness."""
+
+    SOFT = "Soft"
+    MEDIUM = "Medium"
+    HARD = "Hard"

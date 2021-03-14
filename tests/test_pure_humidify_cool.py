@@ -25,6 +25,8 @@ STATUS = {
         "humt": "0050",
         "rect": "0080",
         "wath": "2025",
+        "cltr": "1853",
+        "cdrr": "0060",
     }
 }
 
@@ -41,6 +43,8 @@ def test_properties(mqtt_client: MockedMQTT):
     assert device.humidity_target == 50
     assert device.auto_humidity_target == 80
     assert device.water_hardness == WaterHardness.SOFT
+    assert device.time_until_next_clean == 1853
+    assert device.clean_time_remaining == 60
 
     new_status = {
         "product-state": {
@@ -51,6 +55,8 @@ def test_properties(mqtt_client: MockedMQTT):
             "humt": ["0050", "0030"],
             "rect": ["0080", "0050"],
             "wath": ["2025", "0675"],
+            "cltr": ["1853", "1800"],
+            "cdrr": ["0060", "0050"],
         }
     }
     mqtt_client.state_change(new_status)
@@ -61,6 +67,8 @@ def test_properties(mqtt_client: MockedMQTT):
     assert device.humidity_target == 30
     assert device.auto_humidity_target == 50
     assert device.water_hardness == WaterHardness.HARD
+    assert device.time_until_next_clean == 1800
+    assert device.clean_time_remaining == 50
 
 
 @pytest.mark.parametrize(

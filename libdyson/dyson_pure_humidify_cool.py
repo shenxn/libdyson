@@ -53,6 +53,16 @@ class DysonPureHumidifyCool(DysonPureCoolBase):
         """Return the water hardness setting."""
         return WATER_HARDNESS_STR_TO_ENUM[self._get_field_value(self._status, "wath")]
 
+    @property
+    def time_until_next_clean(self) -> int:
+        """Return the time remaining in hours before the next deep cleaning."""
+        return int(self._get_field_value(self._status, "cltr"))
+
+    @property
+    def clean_time_remaining(self) -> int:
+        """Return the time remaining in minutes before the cleaning finishes."""
+        return int(self._get_field_value(self._status, "cdrr"))
+
     def enable_oscillation(
         self, angle: Optional[HumidifyOscillationMode] = None
     ) -> None:

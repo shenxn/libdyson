@@ -13,6 +13,7 @@ from .const import (
     DEVICE_TYPE_PURE_HUMIDITY_COOL,
 )
 from .const import DEVICE_TYPE_NAMES  # noqa: F401
+from .const import HumidityOscillationMode  # noqa: F401
 from .const import MessageType  # noqa: F401
 from .const import WaterHardness  # noqa: F401
 from .discovery import DysonDiscovery  # noqa: F401

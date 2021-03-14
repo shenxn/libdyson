@@ -1,7 +1,9 @@
 """Dyson Pure Humidity+Cool device."""
 
-from .const import WaterHardness
-from .dyson_pure_cool import DysonPureCool
+from typing import Optional
+
+from .const import HumidityOscillationMode, WaterHardness
+from .dyson_pure_cool import DysonPureCoolBase
 
 WATER_HARDNESS_ENUM_TO_STR = {
     WaterHardness.SOFT: "2025",
@@ -13,8 +15,18 @@ WATER_HARDNESS_STR_TO_ENUM = {
 }
 
 
-class DysonPureHumidityCool(DysonPureCool):
+class DysonPureHumidityCool(DysonPureCoolBase):
     """Dyson Pure Humidity+Cool device."""
+
+    @property
+    def oscillation(self) -> bool:
+        """Return oscillation status."""
+        return self._get_field_value(self._status, "oson") == "ON"
+
+    @property
+    def oscillation_angle(self) -> HumidityOscillationMode:
+        """Return oscillation angle."""
+        return HumidityOscillationMode(self._get_field_value(self._status, "ancp"))
 
     @property
     def humidification(self) -> bool:
@@ -40,6 +52,19 @@ class DysonPureHumidityCool(DysonPureCool):
     def water_hardness(self) -> WaterHardness:
         """Return the water hardness setting."""
         return WATER_HARDNESS_STR_TO_ENUM[self._get_field_value(self._status, "wath")]
+
+    def enable_oscillation(
+        self, angle: Optional[HumidityOscillationMode] = None
+    ) -> None:
+        """Turn on oscillation."""
+        if angle is None:
+            angle = self.oscillation_angle
+
+        self._set_configuration(oson="ON", fpwr="ON", ancp=angle.value)
+
+    def disable_oscillation(self) -> None:
+        """Turn off oscillation."""
+        self._set_configuration(oson="OFF")
 
     def enable_humidification(self) -> None:
         """Enable humidification."""

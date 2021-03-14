@@ -1,12 +1,13 @@
 """Dyson Pure Cool fan."""
 
+from abc import abstractmethod
 from typing import Optional
 
 from .dyson_device import DysonFanDevice
 
 
-class DysonPureCool(DysonFanDevice):
-    """Dyson Pure Cool fan."""
+class DysonPureCoolBase(DysonFanDevice):
+    """Dyson Pure Cool series base class."""
 
     @property
     def is_on(self) -> bool:
@@ -19,24 +20,14 @@ class DysonPureCool(DysonFanDevice):
         return self._get_field_value(self._status, "auto") == "ON"
 
     @property
+    @abstractmethod
     def oscillation(self) -> bool:
         """Return oscillation status."""
-        return self._get_field_value(self._status, "oson") == "OION"
 
     @property
     def oscillation_status(self) -> bool:
         """Return the status of oscillation."""
         return self._get_field_value(self._status, "oscs") == "ON"
-
-    @property
-    def oscillation_angle_low(self) -> int:
-        """Return oscillation low angle."""
-        return int(self._get_field_value(self._status, "osal"))
-
-    @property
-    def oscillation_angle_high(self) -> int:
-        """Return oscillation high angle."""
-        return int(self._get_field_value(self._status, "osau"))
 
     @property
     def front_airflow(self) -> bool:
@@ -100,6 +91,47 @@ class DysonPureCool(DysonFanDevice):
         """Turn off auto mode."""
         self._set_configuration(auto="OFF")
 
+    def enable_continuous_monitoring(self) -> None:
+        """Turn on continuous monitoring."""
+        self._set_configuration(
+            fpwr="ON" if self.is_on else "OFF",  # Not sure about this
+            rhtm="ON",
+        )
+
+    def disable_continuous_monitoring(self) -> None:
+        """Turn off continuous monitoring."""
+        self._set_configuration(
+            fpwr="ON" if self.is_on else "OFF",
+            rhtm="OFF",
+        )
+
+    def enable_front_airflow(self) -> None:
+        """Turn on front airflow."""
+        self._set_configuration(fdir="ON")
+
+    def disable_front_airflow(self) -> None:
+        """Turn off front airflow."""
+        self._set_configuration(fdir="OFF")
+
+
+class DysonPureCool(DysonPureCoolBase):
+    """Dyson Pure Cool device."""
+
+    @property
+    def oscillation(self) -> bool:
+        """Return oscillation status."""
+        return self._get_field_value(self._status, "oson") == "OION"
+
+    @property
+    def oscillation_angle_low(self) -> int:
+        """Return oscillation low angle."""
+        return int(self._get_field_value(self._status, "osal"))
+
+    @property
+    def oscillation_angle_high(self) -> int:
+        """Return oscillation high angle."""
+        return int(self._get_field_value(self._status, "osau"))
+
     def enable_oscillation(
         self,
         angle_low: Optional[int] = None,
@@ -131,25 +163,3 @@ class DysonPureCool(DysonFanDevice):
     def disable_oscillation(self) -> None:
         """Turn off oscillation."""
         self._set_configuration(oson="OIOF")
-
-    def enable_continuous_monitoring(self) -> None:
-        """Turn on continuous monitoring."""
-        self._set_configuration(
-            fpwr="ON" if self.is_on else "OFF",  # Not sure about this
-            rhtm="ON",
-        )
-
-    def disable_continuous_monitoring(self) -> None:
-        """Turn off continuous monitoring."""
-        self._set_configuration(
-            fpwr="ON" if self.is_on else "OFF",
-            rhtm="OFF",
-        )
-
-    def enable_front_airflow(self) -> None:
-        """Turn on front airflow."""
-        self._set_configuration(fdir="ON")
-
-    def disable_front_airflow(self) -> None:
-        """Turn off front airflow."""
-        self._set_configuration(fdir="OFF")

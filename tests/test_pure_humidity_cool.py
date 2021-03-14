@@ -5,6 +5,7 @@ import pytest
 from libdyson import (
     DEVICE_TYPE_PURE_HUMIDITY_COOL,
     DysonPureHumidityCool,
+    HumidityOscillationMode,
     WaterHardness,
 )
 
@@ -17,6 +18,8 @@ DEVICE_TYPE = DEVICE_TYPE_PURE_HUMIDITY_COOL
 
 STATUS = {
     "product-state": {
+        "oson": "ON",
+        "ancp": "BRZE",
         "hume": "HUMD",
         "haut": "ON",
         "humt": "0050",
@@ -31,6 +34,8 @@ def test_properties(mqtt_client: MockedMQTT):
     device = DysonPureHumidityCool(SERIAL, CREDENTIAL, DEVICE_TYPE)
     device.connect(HOST)
 
+    assert device.oscillation is True
+    assert device.oscillation_angle == HumidityOscillationMode.BREEZE
     assert device.humidification is True
     assert device.humidification_auto_mode is True
     assert device.humidity_target == 50
@@ -39,6 +44,8 @@ def test_properties(mqtt_client: MockedMQTT):
 
     new_status = {
         "product-state": {
+            "oson": ["ON", "OFF"],
+            "ancp": ["BRZE", "0045"],
             "hume": ["HUMD", "OFF"],
             "haut": ["ON", "OFF"],
             "humt": ["0050", "0030"],
@@ -47,6 +54,8 @@ def test_properties(mqtt_client: MockedMQTT):
         }
     }
     mqtt_client.state_change(new_status)
+    assert device.oscillation is False
+    assert device.oscillation_angle == HumidityOscillationMode.DEGREE_45
     assert device.humidification is False
     assert device.humidification_auto_mode is False
     assert device.humidity_target == 30
@@ -57,6 +66,23 @@ def test_properties(mqtt_client: MockedMQTT):
 @pytest.mark.parametrize(
     "command,command_args,msg_data",
     [
+        ("enable_oscillation", [], {"oson": "ON", "fpwr": "ON", "ancp": "BRZE"}),
+        (
+            "enable_oscillation",
+            [HumidityOscillationMode.DEGREE_45],
+            {"oson": "ON", "fpwr": "ON", "ancp": "0045"},
+        ),
+        (
+            "enable_oscillation",
+            [HumidityOscillationMode.DEGREE_90],
+            {"oson": "ON", "fpwr": "ON", "ancp": "0090"},
+        ),
+        (
+            "enable_oscillation",
+            [HumidityOscillationMode.BREEZE],
+            {"oson": "ON", "fpwr": "ON", "ancp": "BRZE"},
+        ),
+        ("disable_oscillation", [], {"oson": "OFF"}),
         ("enable_humidification", [], {"hume": "HUMD"}),
         ("disable_humidification", [], {"hume": "OFF"}),
         ("enable_humidification_auto_mode", [], {"haut": "ON"}),

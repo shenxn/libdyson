@@ -42,6 +42,14 @@ class AirQualityTarget(Enum):
     VERY_SENSITIVE = "0001"
 
 
+class HumidityOscillationMode(Enum):
+    """Pure Humidity+Cool oscillation mode."""
+
+    DEGREE_45 = "0045"
+    DEGREE_90 = "0090"
+    BREEZE = "BRZE"
+
+
 class WaterHardness(Enum):
     """Water Hardness."""
 

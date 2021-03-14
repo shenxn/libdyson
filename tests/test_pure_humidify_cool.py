@@ -3,9 +3,9 @@
 import pytest
 
 from libdyson import (
-    DEVICE_TYPE_PURE_HUMIDITY_COOL,
-    DysonPureHumidityCool,
-    HumidityOscillationMode,
+    DEVICE_TYPE_PURE_HUMIDIFY_COOL,
+    DysonPureHumidifyCool,
+    HumidifyOscillationMode,
     WaterHardness,
 )
 
@@ -14,7 +14,7 @@ from .mocked_mqtt import MockedMQTT
 from .test_fan_device import assert_command
 from .test_pure_cool_link import ENVIRONMENTAL_DATA  # noqa: F401
 
-DEVICE_TYPE = DEVICE_TYPE_PURE_HUMIDITY_COOL
+DEVICE_TYPE = DEVICE_TYPE_PURE_HUMIDIFY_COOL
 
 STATUS = {
     "product-state": {
@@ -31,11 +31,11 @@ STATUS = {
 
 def test_properties(mqtt_client: MockedMQTT):
     """Test properties of Pure Hot+Cool Link."""
-    device = DysonPureHumidityCool(SERIAL, CREDENTIAL, DEVICE_TYPE)
+    device = DysonPureHumidifyCool(SERIAL, CREDENTIAL, DEVICE_TYPE)
     device.connect(HOST)
 
     assert device.oscillation is True
-    assert device.oscillation_angle == HumidityOscillationMode.BREEZE
+    assert device.oscillation_angle == HumidifyOscillationMode.BREEZE
     assert device.humidification is True
     assert device.humidification_auto_mode is True
     assert device.humidity_target == 50
@@ -55,7 +55,7 @@ def test_properties(mqtt_client: MockedMQTT):
     }
     mqtt_client.state_change(new_status)
     assert device.oscillation is False
-    assert device.oscillation_angle == HumidityOscillationMode.DEGREE_45
+    assert device.oscillation_angle == HumidifyOscillationMode.DEGREE_45
     assert device.humidification is False
     assert device.humidification_auto_mode is False
     assert device.humidity_target == 30
@@ -69,17 +69,17 @@ def test_properties(mqtt_client: MockedMQTT):
         ("enable_oscillation", [], {"oson": "ON", "fpwr": "ON", "ancp": "BRZE"}),
         (
             "enable_oscillation",
-            [HumidityOscillationMode.DEGREE_45],
+            [HumidifyOscillationMode.DEGREE_45],
             {"oson": "ON", "fpwr": "ON", "ancp": "0045"},
         ),
         (
             "enable_oscillation",
-            [HumidityOscillationMode.DEGREE_90],
+            [HumidifyOscillationMode.DEGREE_90],
             {"oson": "ON", "fpwr": "ON", "ancp": "0090"},
         ),
         (
             "enable_oscillation",
-            [HumidityOscillationMode.BREEZE],
+            [HumidifyOscillationMode.BREEZE],
             {"oson": "ON", "fpwr": "ON", "ancp": "BRZE"},
         ),
         ("disable_oscillation", [], {"oson": "OFF"}),
@@ -101,7 +101,7 @@ def test_command(
 ):
     """Test commands of Pure Hot+Cool Link."""
     assert_command(
-        DysonPureHumidityCool(SERIAL, CREDENTIAL, DEVICE_TYPE),
+        DysonPureHumidifyCool(SERIAL, CREDENTIAL, DEVICE_TYPE),
         mqtt_client,
         command,
         command_args,

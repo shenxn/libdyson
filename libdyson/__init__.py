@@ -10,10 +10,10 @@ from .const import (
     DEVICE_TYPE_PURE_COOL_LINK_DESK,
     DEVICE_TYPE_PURE_HOT_COOL,
     DEVICE_TYPE_PURE_HOT_COOL_LINK,
-    DEVICE_TYPE_PURE_HUMIDITY_COOL,
+    DEVICE_TYPE_PURE_HUMIDIFY_COOL,
 )
 from .const import DEVICE_TYPE_NAMES  # noqa: F401
-from .const import HumidityOscillationMode  # noqa: F401
+from .const import HumidifyOscillationMode  # noqa: F401
 from .const import MessageType  # noqa: F401
 from .const import WaterHardness  # noqa: F401
 from .discovery import DysonDiscovery  # noqa: F401
@@ -25,7 +25,7 @@ from .dyson_pure_cool import DysonPureCool
 from .dyson_pure_cool_link import DysonPureCoolLink
 from .dyson_pure_hot_cool import DysonPureHotCool
 from .dyson_pure_hot_cool_link import DysonPureHotCoolLink
-from .dyson_pure_humidity_cool import DysonPureHumidityCool
+from .dyson_pure_humidify_cool import DysonPureHumidifyCool
 from .utils import get_mqtt_info_from_wifi_info  # noqa: F401
 
 
@@ -47,6 +47,6 @@ def get_device(serial: str, credential: str, device_type: str) -> Optional[Dyson
         return DysonPureHotCoolLink(serial, credential, device_type)
     if device_type == DEVICE_TYPE_PURE_HOT_COOL:
         return DysonPureHotCool(serial, credential, device_type)
-    if device_type == DEVICE_TYPE_PURE_HUMIDITY_COOL:
-        return DysonPureHumidityCool(serial, credential, device_type)
+    if device_type == DEVICE_TYPE_PURE_HUMIDIFY_COOL:
+        return DysonPureHumidifyCool(serial, credential, device_type)
     return None

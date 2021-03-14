@@ -6,7 +6,7 @@ DEVICE_TYPE_PURE_COOL_LINK = "475"
 DEVICE_TYPE_PURE_COOL_LINK_DESK = "469"
 DEVICE_TYPE_PURE_COOL = "438"
 DEVICE_TYPE_PURE_COOL_DESK = "520"
-DEVICE_TYPE_PURE_HUMIDITY_COOL = "358"
+DEVICE_TYPE_PURE_HUMIDIFY_COOL = "358"
 DEVICE_TYPE_PURE_HOT_COOL_LINK = "455"
 DEVICE_TYPE_PURE_HOT_COOL = "527"
 
@@ -18,7 +18,7 @@ DEVICE_TYPE_NAMES = {
     DEVICE_TYPE_PURE_COOL_LINK_DESK: "Pure Cool Link Desk",
     DEVICE_TYPE_PURE_HOT_COOL: "Pure Hot+Cool",
     DEVICE_TYPE_PURE_HOT_COOL_LINK: "Pure Hot+Cool Link",
-    DEVICE_TYPE_PURE_HUMIDITY_COOL: "Pure Humidity+Cool",
+    DEVICE_TYPE_PURE_HUMIDIFY_COOL: "Pure Humidify+Cool",
 }
 
 ENVIRONMENTAL_OFF = -1
@@ -42,8 +42,8 @@ class AirQualityTarget(Enum):
     VERY_SENSITIVE = "0001"
 
 
-class HumidityOscillationMode(Enum):
-    """Pure Humidity+Cool oscillation mode."""
+class HumidifyOscillationMode(Enum):
+    """Pure Humidify+Cool oscillation mode."""
 
     DEGREE_45 = "0045"
     DEGREE_90 = "0090"

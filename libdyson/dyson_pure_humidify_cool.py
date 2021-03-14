@@ -24,8 +24,8 @@ class DysonPureHumidifyCool(DysonPureCoolBase):
         return self._get_field_value(self._status, "oson") == "ON"
 
     @property
-    def oscillation_angle(self) -> HumidifyOscillationMode:
-        """Return oscillation angle."""
+    def oscillation_mode(self) -> HumidifyOscillationMode:
+        """Return oscillation mode."""
         return HumidifyOscillationMode(self._get_field_value(self._status, "ancp"))
 
     @property
@@ -64,13 +64,13 @@ class DysonPureHumidifyCool(DysonPureCoolBase):
         return int(self._get_field_value(self._status, "cdrr"))
 
     def enable_oscillation(
-        self, angle: Optional[HumidifyOscillationMode] = None
+        self, oscillation_mode: Optional[HumidifyOscillationMode] = None
     ) -> None:
         """Turn on oscillation."""
-        if angle is None:
-            angle = self.oscillation_angle
+        if oscillation_mode is None:
+            oscillation_mode = self.oscillation_mode
 
-        self._set_configuration(oson="ON", fpwr="ON", ancp=angle.value)
+        self._set_configuration(oson="ON", fpwr="ON", ancp=oscillation_mode.value)
 
     def disable_oscillation(self) -> None:
         """Turn off oscillation."""

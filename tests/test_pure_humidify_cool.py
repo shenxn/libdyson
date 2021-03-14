@@ -37,7 +37,7 @@ def test_properties(mqtt_client: MockedMQTT):
     device.connect(HOST)
 
     assert device.oscillation is True
-    assert device.oscillation_angle == HumidifyOscillationMode.BREEZE
+    assert device.oscillation_mode == HumidifyOscillationMode.BREEZE
     assert device.humidification is True
     assert device.humidification_auto_mode is True
     assert device.humidity_target == 50
@@ -61,7 +61,7 @@ def test_properties(mqtt_client: MockedMQTT):
     }
     mqtt_client.state_change(new_status)
     assert device.oscillation is False
-    assert device.oscillation_angle == HumidifyOscillationMode.DEGREE_45
+    assert device.oscillation_mode == HumidifyOscillationMode.DEGREE_45
     assert device.humidification is False
     assert device.humidification_auto_mode is False
     assert device.humidity_target == 30

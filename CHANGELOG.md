@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.2
+
+- Rename `humidity_cool` to `humidify_cool` (Fix typo)
+- Add full support to Pure Humidify+Cool device
+
 ## 0.7.1
 
 - Improve `get_mqtt_info_from_wifi_info`

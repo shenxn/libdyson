@@ -40,7 +40,7 @@ def test_properties(mqtt_client: MockedMQTT):
     """Test properties of 360 Heurist."""
     device = Dyson360Heurist(SERIAL, CREDENTIAL)
     device.connect(HOST)
-    assert device.current_power_mode == VacuumHeuristPowerMode.QUITE
+    assert device.current_power_mode == VacuumHeuristPowerMode.QUIET
     assert device.default_power_mode == VacuumHeuristPowerMode.HIGH
     assert device.current_cleaning_mode == CleaningMode.ZONE_CONFIGURED
     assert device.default_cleaning_mode == CleaningMode.GLOBAL
@@ -77,7 +77,7 @@ def test_properties(mqtt_client: MockedMQTT):
         ("abort", [], "ABORT", {}),
         (
             "set_default_power_mode",
-            [VacuumHeuristPowerMode.QUITE],
+            [VacuumHeuristPowerMode.QUIET],
             "STATE-SET",
             {"defaults": {"defaultVacuumPowerMode": "1"}},
         ),

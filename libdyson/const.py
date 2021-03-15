@@ -107,7 +107,7 @@ class VacuumEyePowerMode(Enum):
 class VacuumHeuristPowerMode(Enum):
     """Dyson 360 Heurist power mode."""
 
-    QUITE = "1"
+    QUIET = "1"
     HIGH = "2"
     MAX = "3"
 

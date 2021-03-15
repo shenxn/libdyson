@@ -5,6 +5,7 @@ import pytest
 
 from libdyson import (
     DEVICE_TYPE_360_EYE,
+    DEVICE_TYPE_360_HEURIST,
     DEVICE_TYPE_PURE_COOL,
     DEVICE_TYPE_PURE_COOL_DESK,
     DEVICE_TYPE_PURE_COOL_LINK,
@@ -13,6 +14,7 @@ from libdyson import (
     DEVICE_TYPE_PURE_HOT_COOL_LINK,
     DEVICE_TYPE_PURE_HUMIDIFY_COOL,
     Dyson360Eye,
+    Dyson360Heurist,
     DysonDevice,
     DysonPureCool,
     DysonPureCoolLink,
@@ -29,6 +31,7 @@ from . import CREDENTIAL, SERIAL
     "device_type,class_type",
     [
         (DEVICE_TYPE_360_EYE, Dyson360Eye),
+        (DEVICE_TYPE_360_HEURIST, Dyson360Heurist),
         (DEVICE_TYPE_PURE_COOL_LINK_DESK, DysonPureCoolLink),
         (DEVICE_TYPE_PURE_COOL_LINK, DysonPureCoolLink),
         (DEVICE_TYPE_PURE_COOL, DysonPureCool),

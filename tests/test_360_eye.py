@@ -3,25 +3,14 @@ from unittest.mock import patch
 
 import pytest
 
-from libdyson import DEVICE_TYPE_360_EYE
-from libdyson.dyson_360_eye import (
-    CleaningType,
-    Dyson360Eye,
-    VacuumPowerMode,
-    VacuumState,
-)
+from libdyson import DEVICE_TYPE_360_EYE, Dyson360Eye, VacuumEyePowerMode
 
 from . import CREDENTIAL, HOST, SERIAL
 from .mocked_mqtt import MockedMQTT
 
 STATUS = {
-    "state": "INACTIVE_CHARGED",
-    "fullCleanType": "",
-    "cleanId": "",
     "currentVacuumPowerMode": "fullPower",
     "defaultVacuumPowerMode": "fullPower",
-    "globalPosition": [0, 0],
-    "batteryChargeLevel": 100,
 }
 
 
@@ -44,34 +33,14 @@ def test_properties(mqtt_client: MockedMQTT):
     """Test properties of 360 Eye."""
     device = Dyson360Eye(SERIAL, CREDENTIAL)
     device.connect(HOST)
+    assert device.power_mode == VacuumEyePowerMode.MAX
 
-    assert device.state == VacuumState.INACTIVE_CHARGED
-    assert device.cleaning_type is None
-    assert device.cleaning_id is None
-    assert device.power_mode == VacuumPowerMode.MAX
-    assert device.position == (0, 0)
-    assert device.is_charging is True
-    assert device.battery_level == 100
-
-    clean_id = "b599d00f-6f3b-401a-9c05-69877251e843"
     new_status = {
-        "oldstate": "INACTIVE_CHARGED",
-        "newstate": "FULL_CLEAN_RUNNING",
-        "fullCleanType": "immediate",
-        "cleanId": clean_id,
         "currentVacuumPowerMode": "halfPower",
         "defaultVacuumPowerMode": "halfPower",
-        "globalPosition": [],
-        "batteryChargeLevel": 30,
     }
     mqtt_client.state_change(new_status)
-    assert device.state == VacuumState.FULL_CLEAN_RUNNING
-    assert device.cleaning_type == CleaningType.IMMEDIATE
-    assert device.cleaning_id == clean_id
-    assert device.power_mode == VacuumPowerMode.QUIET
-    assert device.position is None
-    assert device.is_charging is False
-    assert device.battery_level == 30
+    assert device.power_mode == VacuumEyePowerMode.QUIET
 
 
 @pytest.mark.parametrize(
@@ -83,13 +52,13 @@ def test_properties(mqtt_client: MockedMQTT):
         ("abort", [], "ABORT", {}),
         (
             "set_power_mode",
-            [VacuumPowerMode.MAX],
+            [VacuumEyePowerMode.MAX],
             "STATE-SET",
             {"data": {"defaultVacuumPowerMode": "fullPower"}},
         ),
         (
             "set_power_mode",
-            [VacuumPowerMode.QUIET],
+            [VacuumEyePowerMode.QUIET],
             "STATE-SET",
             {"data": {"defaultVacuumPowerMode": "halfPower"}},
         ),

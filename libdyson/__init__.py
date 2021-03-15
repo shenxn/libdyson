@@ -4,6 +4,7 @@ from typing import Optional
 
 from .const import (
     DEVICE_TYPE_360_EYE,
+    DEVICE_TYPE_360_HEURIST,
     DEVICE_TYPE_PURE_COOL,
     DEVICE_TYPE_PURE_COOL_DESK,
     DEVICE_TYPE_PURE_COOL_LINK,
@@ -12,14 +13,18 @@ from .const import (
     DEVICE_TYPE_PURE_HOT_COOL_LINK,
     DEVICE_TYPE_PURE_HUMIDIFY_COOL,
 )
+from .const import CleaningMode  # noqa: F401
+from .const import CleaningType  # noqa: F401
 from .const import DEVICE_TYPE_NAMES  # noqa: F401
 from .const import HumidifyOscillationMode  # noqa: F401
 from .const import MessageType  # noqa: F401
+from .const import VacuumEyePowerMode  # noqa: F401
+from .const import VacuumHeuristPowerMode  # noqa: F401
+from .const import VacuumState  # noqa: F401
 from .const import WaterHardness  # noqa: F401
 from .discovery import DysonDiscovery  # noqa: F401
 from .dyson_360_eye import Dyson360Eye
-from .dyson_360_eye import VacuumPowerMode  # noqa: F401
-from .dyson_360_eye import VacuumState  # noqa: F401
+from .dyson_360_heurist import Dyson360Heurist
 from .dyson_device import DysonDevice
 from .dyson_pure_cool import DysonPureCool
 from .dyson_pure_cool_link import DysonPureCoolLink
@@ -33,6 +38,8 @@ def get_device(serial: str, credential: str, device_type: str) -> Optional[Dyson
     """Get a new DysonDevice instance."""
     if device_type == DEVICE_TYPE_360_EYE:
         return Dyson360Eye(serial, credential)
+    if device_type == DEVICE_TYPE_360_HEURIST:
+        return Dyson360Heurist(serial, credential)
     if device_type in [
         DEVICE_TYPE_PURE_COOL_LINK_DESK,
         DEVICE_TYPE_PURE_COOL_LINK,

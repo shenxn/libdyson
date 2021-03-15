@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.0
+
+- Rename `humidity_target` to `target_humidity` (Breaking)
+- Add support to 360 Heurist (Experimental)
+
 ## 0.7.3
 
 - Rename `oscillation_angle` to `oscillation_mode` for Pure Humidity+Cool

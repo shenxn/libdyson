@@ -40,8 +40,8 @@ def test_properties(mqtt_client: MockedMQTT):
     assert device.oscillation_mode == HumidifyOscillationMode.BREEZE
     assert device.humidification is True
     assert device.humidification_auto_mode is True
-    assert device.humidity_target == 50
-    assert device.auto_humidity_target == 80
+    assert device.target_humidity == 50
+    assert device.auto_target_humidity == 80
     assert device.water_hardness == WaterHardness.SOFT
     assert device.time_until_next_clean == 1853
     assert device.clean_time_remaining == 60
@@ -64,8 +64,8 @@ def test_properties(mqtt_client: MockedMQTT):
     assert device.oscillation_mode == HumidifyOscillationMode.DEGREE_45
     assert device.humidification is False
     assert device.humidification_auto_mode is False
-    assert device.humidity_target == 30
-    assert device.auto_humidity_target == 50
+    assert device.target_humidity == 30
+    assert device.auto_target_humidity == 50
     assert device.water_hardness == WaterHardness.HARD
     assert device.time_until_next_clean == 1800
     assert device.clean_time_remaining == 50
@@ -95,7 +95,7 @@ def test_properties(mqtt_client: MockedMQTT):
         ("disable_humidification", [], {"hume": "OFF"}),
         ("enable_humidification_auto_mode", [], {"haut": "ON"}),
         ("disable_humidification_auto_mode", [], {"haut": "OFF"}),
-        ("set_humidity_target", [50], {"humt": "0050"}),
+        ("set_target_humidity", [50], {"humt": "0050"}),
         ("set_water_hardness", [WaterHardness.SOFT], {"wath": "2025"}),
         ("set_water_hardness", [WaterHardness.MEDIUM], {"wath": "1350"}),
         ("set_water_hardness", [WaterHardness.HARD], {"wath": "0675"}),

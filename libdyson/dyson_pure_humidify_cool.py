@@ -39,13 +39,13 @@ class DysonPureHumidifyCool(DysonPureCoolBase):
         return self._get_field_value(self._status, "haut") == "ON"
 
     @property
-    def humidity_target(self) -> int:
-        """Return humidity target in percentage."""
+    def target_humidity(self) -> int:
+        """Return target humidity in percentage."""
         return int(self._get_field_value(self._status, "humt"))
 
     @property
-    def auto_humidity_target(self) -> int:
-        """Return humidification auto mode humidity target."""
+    def auto_target_humidity(self) -> int:
+        """Return humidification auto mode target humidity."""
         return int(self._get_field_value(self._status, "rect"))
 
     @property
@@ -92,9 +92,9 @@ class DysonPureHumidifyCool(DysonPureCoolBase):
         """Disable humidification auto mode."""
         self._set_configuration(haut="OFF")
 
-    def set_humidity_target(self, humidity_target: int) -> None:
-        """Set humidity target."""
-        self._set_configuration(humt=f"{humidity_target:04d}")
+    def set_target_humidity(self, target_humidity: int) -> None:
+        """Set target humidity."""
+        self._set_configuration(humt=f"{target_humidity:04d}")
 
     def set_water_hardness(self, water_hardness: WaterHardness) -> None:
         """Set water hardness."""

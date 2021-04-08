@@ -38,6 +38,7 @@ class MessageType(Enum):
 class AirQualityTarget(Enum):
     """Air Quality Target."""
 
+    OFF = "OFF"
     GOOD = "0004"
     SENSITIVE = "0003"
     DEFAULT = "0002"

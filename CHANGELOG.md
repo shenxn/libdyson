@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.1
+
+- Fix reconnection
+- Add `OFF` to `AirQualityTarget`
+
 ## 0.8.0
 
 - Rename `humidity_target` to `target_humidity` (Breaking)

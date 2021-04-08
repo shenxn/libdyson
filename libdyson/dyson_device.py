@@ -80,9 +80,9 @@ class DysonDevice:
         def _on_connect(client: mqtt.Client, userdata: Any, flags, rc):
             _LOGGER.debug("Connected with result code %d", rc)
             nonlocal error
-            if rc == 4:
+            if rc == mqtt.CONNACK_REFUSED_BAD_USERNAME_PASSWORD:
                 error = DysonInvalidCredential
-            elif rc != 0:
+            elif rc != mqtt.CONNACK_ACCEPTED:
                 error = DysonConnectionRefused
             else:
                 client.subscribe(self._status_topic)
@@ -137,6 +137,7 @@ class DysonDevice:
         _LOGGER.debug("Connected with result code %d", rc)
         self._disconnected.clear()
         self._connected.set()
+        client.subscribe(self._status_topic)
         for callback in self._callbacks:
             callback(MessageType.STATE)
 

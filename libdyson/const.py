@@ -51,6 +51,7 @@ class HumidifyOscillationMode(Enum):
     DEGREE_45 = "0045"
     DEGREE_90 = "0090"
     BREEZE = "BRZE"
+    CUST = "CUST"
 
 
 class WaterHardness(Enum):

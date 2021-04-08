@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.2
+
+- Turn off humidification auto mode when set target humidity
+- Add `CUST` to `HumidifyOscillationMode`
+
 ## 0.8.1
 
 - Fix reconnection

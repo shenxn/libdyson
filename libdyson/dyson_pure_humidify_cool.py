@@ -94,7 +94,7 @@ class DysonPureHumidifyCool(DysonPureCoolBase):
 
     def set_target_humidity(self, target_humidity: int) -> None:
         """Set target humidity."""
-        self._set_configuration(humt=f"{target_humidity:04d}")
+        self._set_configuration(humt=f"{target_humidity:04d}", haut="OFF")
 
     def set_water_hardness(self, water_hardness: WaterHardness) -> None:
         """Set water hardness."""

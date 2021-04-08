@@ -95,7 +95,7 @@ def test_properties(mqtt_client: MockedMQTT):
         ("disable_humidification", [], {"hume": "OFF"}),
         ("enable_humidification_auto_mode", [], {"haut": "ON"}),
         ("disable_humidification_auto_mode", [], {"haut": "OFF"}),
-        ("set_target_humidity", [50], {"humt": "0050"}),
+        ("set_target_humidity", [50], {"humt": "0050", "haut": "OFF"}),
         ("set_water_hardness", [WaterHardness.SOFT], {"wath": "2025"}),
         ("set_water_hardness", [WaterHardness.MEDIUM], {"wath": "1350"}),
         ("set_water_hardness", [WaterHardness.HARD], {"wath": "0675"}),

@@ -100,8 +100,7 @@ class DysonDevice:
         self._mqtt_client.loop_start()
         if self._connected.wait(timeout=TIMEOUT):
             if error is not None:
-                self._mqtt_client.loop_stop()
-                self._connected.clear()
+                self.disconnect()
                 raise error
 
             _LOGGER.info("Connected to device %s", self._serial)
@@ -110,10 +109,9 @@ class DysonDevice:
                 self._mqtt_client.on_disconnect = self._on_disconnect
                 return
 
-            # Close connection if connected but failed to get data
-            self.disconnect()
+        # Close connection if timeout or connected but failed to get data
+        self.disconnect()
 
-        self._mqtt_client.loop_stop()
         raise DysonConnectTimeout
 
     def disconnect(self) -> None:
@@ -123,6 +121,7 @@ class DysonDevice:
         if not self._disconnected.wait(timeout=TIMEOUT):
             _LOGGER.warning("Disconnect timed out")
         self._mqtt_client.loop_stop()
+        self._mqtt_client = None
 
     def add_message_listener(self, callback) -> None:
         """Add a callback to receive update notification."""

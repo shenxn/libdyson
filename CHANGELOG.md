@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.3
+
+- Fix socket leak
+- Add new device type Pure Cool 2021 (438E)
+
 ## 0.8.2
 
 - Turn off humidification auto mode when set target humidity

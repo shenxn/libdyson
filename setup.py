@@ -3,7 +3,7 @@ import setuptools
 
 REQUIRES = [
     "paho_mqtt",
-    "cryptography",
+    "cryptography>=3.1",
     "requests",
     "zeroconf",
     "attrs",

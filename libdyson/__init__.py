@@ -6,6 +6,7 @@ from .const import (
     DEVICE_TYPE_360_EYE,
     DEVICE_TYPE_360_HEURIST,
     DEVICE_TYPE_PURE_COOL,
+    DEVICE_TYPE_PURE_COOL_2021,
     DEVICE_TYPE_PURE_COOL_DESK,
     DEVICE_TYPE_PURE_COOL_LINK,
     DEVICE_TYPE_PURE_COOL_LINK_DESK,
@@ -47,6 +48,7 @@ def get_device(serial: str, credential: str, device_type: str) -> Optional[Dyson
         return DysonPureCoolLink(serial, credential, device_type)
     if device_type in [
         DEVICE_TYPE_PURE_COOL,
+        DEVICE_TYPE_PURE_COOL_2021,
         DEVICE_TYPE_PURE_COOL_DESK,
     ]:
         return DysonPureCool(serial, credential, device_type)

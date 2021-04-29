@@ -14,6 +14,7 @@ class MockedRequests:
     def __init__(self):
         """Initialize the mock."""
         self.host = DYSON_API_HOST
+        self.cert = DYSON_CERT
         self._handlers = {}
 
     @property
@@ -30,7 +31,7 @@ class MockedRequests:
     ) -> requests.Response:
         """Run mocked request function."""
         assert headers == DYSON_API_HEADERS
-        assert verify == DYSON_CERT
+        assert verify == self.cert
         assert url.startswith(self.host)
         path = url[len(self.host) :]
         response = requests.Response()

@@ -15,6 +15,7 @@ from libdyson.cloud.account import (
     API_PATH_MOBILE_VERIFY,
     API_PATH_USER_STATUS,
     DYSON_API_HOST_CN,
+    DYSON_CERT_CN,
     DysonAccountCN,
     HTTPBearerAuth,
 )
@@ -269,6 +270,7 @@ def test_login_email_request_too_frequently(mocked_requests: MockedRequests):
 def test_login_mobile(mocked_requests: MockedRequests):
     """Test logging into account using phone number and otp code."""
     mocked_requests.host = DYSON_API_HOST_CN
+    mocked_requests.cert = DYSON_CERT_CN
 
     account = DysonAccountCN()
     verify = account.login_mobile_otp(MOBILE)
@@ -294,6 +296,7 @@ def test_login_mobile_request_too_frequently(mocked_requests: MockedRequests):
         return (429, None)
 
     mocked_requests.host = DYSON_API_HOST_CN
+    mocked_requests.cert = DYSON_CERT_CN
     mocked_requests.register_handler(
         "POST", API_PATH_MOBILE_REQUEST, _handle_mobile_request
     )
@@ -306,6 +309,7 @@ def test_login_mobile_request_too_frequently(mocked_requests: MockedRequests):
 def test_account_auth_info_bearer(mocked_requests: MockedRequests):
     """Test initialize account with bearer auth info."""
     mocked_requests.host = DYSON_API_HOST_CN
+    mocked_requests.cert = DYSON_CERT_CN
     account = DysonAccountCN(AUTH_INFO_BEARER)
     devices = account.devices()
     assert len(devices) == 2

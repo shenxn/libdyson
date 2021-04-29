@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 0.8.4
+
+- Fix CN cert chain
+
 ## 0.8.3
 
 - Fix socket leak

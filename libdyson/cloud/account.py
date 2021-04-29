@@ -34,6 +34,7 @@ API_PATH_DEVICES = "/v2/provisioningservice/manifest"
 FILE_PATH = pathlib.Path(__file__).parent.absolute()
 
 DYSON_CERT = f"{FILE_PATH}/certs/DigiCert-chain.crt"
+DYSON_CERT_CN = f"{FILE_PATH}/certs/DigiCert-cn-chain.crt"
 
 
 class HTTPBearerAuth(AuthBase):
@@ -61,6 +62,7 @@ class DysonAccount:
     """Dyson account."""
 
     _HOST = DYSON_API_HOST
+    _CERT = DYSON_CERT
 
     def __init__(
         self,
@@ -109,7 +111,7 @@ class DysonAccount:
                 json=data,
                 headers=DYSON_API_HEADERS,
                 auth=self._auth if auth else None,
-                verify=DYSON_CERT,
+                verify=self._CERT,
             )
         except requests.RequestException:
             raise DysonNetworkError
@@ -183,6 +185,7 @@ class DysonAccountCN(DysonAccount):
     """Dyson account in Mainland China."""
 
     _HOST = DYSON_API_HOST_CN
+    _CERT = DYSON_CERT_CN
 
     def login_mobile_otp(self, mobile: str) -> Callable[[str], dict]:
         """Login using phone number and OTP code."""

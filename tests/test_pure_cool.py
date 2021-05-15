@@ -120,6 +120,21 @@ def test_properties(mqtt_client: MockedMQTT):
     assert device.carbon_filter_life is None
     assert device.hepa_filter_life == 80
 
+    new_status = {
+        "product-state": {
+            "oson": ["ON", "OFF"],
+        },
+    }
+    mqtt_client.state_change(new_status)
+    assert device.oscillation is False
+    new_status = {
+        "product-state": {
+            "oson": ["OFF", "ON"],
+        },
+    }
+    mqtt_client.state_change(new_status)
+    assert device.oscillation is True
+
     mqtt_client._environmental_data = {
         "data": {
             "tact": "2977",
@@ -201,6 +216,39 @@ def test_command(
         command,
         command_args,
         msg_data,
+    )
+
+
+def test_oscillation_ON_OFF(mqtt_client: MockedMQTT):
+    """Test enable and disable oscillation with ON/OFF instead of OION/OIOFF."""
+    new_status = {
+        "product-state": {
+            "oson": ["OIOF", "ON"],
+            "osal": ["0063", "0063"],
+            "osau": ["0243", "0243"],
+        },
+    }
+    assert_command(
+        DysonPureCool(SERIAL, CREDENTIAL, DEVICE_TYPE),
+        mqtt_client,
+        "enable_oscillation",
+        [],
+        {
+            "oson": "ON",
+            "fpwr": "ON",
+            "ancp": "CUST",
+            "osal": "0063",
+            "osau": "0243",
+        },
+        new_status,
+    )
+    assert_command(
+        DysonPureCool(SERIAL, CREDENTIAL, DEVICE_TYPE),
+        mqtt_client,
+        "disable_oscillation",
+        [],
+        {"oson": "OFF"},
+        new_status,
     )
 
 

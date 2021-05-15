@@ -1,6 +1,7 @@
 """Tests for DysonFanDevice."""
 
 import json
+from typing import Optional
 from unittest.mock import MagicMock
 
 import pytest
@@ -104,9 +105,12 @@ def assert_command(
     command: str,
     command_args: list,
     msg_data: dict,
+    new_status: Optional[dict] = None,
 ):
     """Test commands of fan device."""
     device.connect(HOST)
+    if new_status is not None:
+        mqtt_client.state_change(new_status)
     func = getattr(device, command)
     func(*command_args)
     assert len(mqtt_client.commands) == 1

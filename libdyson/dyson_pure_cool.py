@@ -120,7 +120,9 @@ class DysonPureCool(DysonPureCoolBase):
     @property
     def oscillation(self) -> bool:
         """Return oscillation status."""
-        return self._get_field_value(self._status, "oson") == "OION"
+        # Seems some devices use OION/OIOF while others uses ON/OFF
+        # https://github.com/shenxn/ha-dyson/issues/22
+        return self._get_field_value(self._status, "oson") in ["OION", "ON"]
 
     @property
     def oscillation_angle_low(self) -> int:
@@ -152,8 +154,13 @@ class DysonPureCool(DysonPureCoolBase):
                 "angle_high must be either equal to angle_low or at least 30 larger than angle_low"
             )
 
+        current_oscillation_raw = self._get_field_value(self._status, "oson")
+        if current_oscillation_raw in ["OION", "OIOF"]:
+            oson = "OION"
+        else:
+            oson = "ON"
         self._set_configuration(
-            oson="OION",
+            oson=oson,
             fpwr="ON",
             ancp="CUST",
             osal=f"{angle_low:04d}",
@@ -162,4 +169,9 @@ class DysonPureCool(DysonPureCoolBase):
 
     def disable_oscillation(self) -> None:
         """Turn off oscillation."""
-        self._set_configuration(oson="OIOF")
+        current_oscillation_raw = self._get_field_value(self._status, "oson")
+        if current_oscillation_raw in ["OION", "OIOF"]:
+            oson = "OIOF"
+        else:
+            oson = "OFF"
+        self._set_configuration(oson=oson)

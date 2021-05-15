@@ -1,6 +1,13 @@
 # Changelog
 
 
+## 0.8.5
+
+- Add new device type Pure Hot+Cool Link New (455A)
+- Make it possible to parse WiFi SSID of 455A and 438E devices
+- Support `ON/OFF` as `oson` value for Pure Cool devices
+
+
 ## 0.8.4
 
 - Fix CN cert chain

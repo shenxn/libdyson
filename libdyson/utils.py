@@ -9,6 +9,12 @@ from typing import Tuple
 from .const import DEVICE_TYPE_360_EYE
 from .exceptions import DysonFailedToParseWifiInfo
 
+# For some devices, the model in WiFi SSID is not the same as the model for MQTT.
+# The model on Dyson Cloud always matches the one used for MQTT.
+_DEVICE_TYPE_MAP = {
+    "455A": "455",
+}
+
 
 def mqtt_time():
     """Return current time string for mqtt messages."""
@@ -32,11 +38,12 @@ def get_mqtt_info_from_wifi_info(
         device_type = DEVICE_TYPE_360_EYE
     else:
         result = re.match(
-            r"^DYSON-([0-9A-Z]{3}-[A-Z]{2}-[0-9A-Z]{8})-([0-9]{3})$", wifi_ssid
+            r"^DYSON-([0-9A-Z]{3}-[A-Z]{2}-[0-9A-Z]{8})-([0-9]{3}[A-Z]?)$", wifi_ssid
         )
         if result is not None:
             serial = result.group(1)
             device_type = result.group(2)
+            device_type = _DEVICE_TYPE_MAP.get(device_type, device_type)
         else:
             raise DysonFailedToParseWifiInfo
 

@@ -13,7 +13,6 @@ from .const import (
     DEVICE_TYPE_PURE_HOT_COOL,
     DEVICE_TYPE_PURE_HOT_COOL_NEW,
     DEVICE_TYPE_PURE_HOT_COOL_LINK,
-    DEVICE_TYPE_PURE_HOT_COOL_LINK_NEW,
     DEVICE_TYPE_PURE_HUMIDIFY_COOL,
 )
 from .const import CleaningMode  # noqa: F401
@@ -54,10 +53,7 @@ def get_device(serial: str, credential: str, device_type: str) -> Optional[Dyson
         DEVICE_TYPE_PURE_COOL_DESK,
     ]:
         return DysonPureCool(serial, credential, device_type)
-    if device_type in [
-        DEVICE_TYPE_PURE_HOT_COOL_LINK,
-        DEVICE_TYPE_PURE_HOT_COOL_LINK_NEW,
-    ]:
+    if device_type == DEVICE_TYPE_PURE_HOT_COOL_LINK:
         return DysonPureHotCoolLink(serial, credential, device_type)
     if device_type in [                                    
         DEVICE_TYPE_PURE_HOT_COOL,                                                       

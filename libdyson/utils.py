@@ -32,7 +32,7 @@ def get_mqtt_info_from_wifi_info(
         device_type = DEVICE_TYPE_360_EYE
     else:
         result = re.match(
-            r"^DYSON-([0-9A-Z]{3}-[A-Z]{2}-[0-9A-Z]{8})-([0-9]{3}[A-Z]?)$", wifi_ssid
+            r"^DYSON-([0-9A-Z]{3}-[A-Z]{2}-[0-9A-Z]{8})-([0-9]{3})$", wifi_ssid
         )
         if result is not None:
             serial = result.group(1)

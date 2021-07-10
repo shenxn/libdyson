@@ -6,7 +6,7 @@ from .const import (
     DEVICE_TYPE_360_EYE,
     DEVICE_TYPE_360_HEURIST,
     DEVICE_TYPE_PURE_COOL,
-    DEVICE_TYPE_PURE_COOL_2021,
+    DEVICE_TYPE_PURE_COOL_FORMALDEHYDE,
     DEVICE_TYPE_PURE_COOL_DESK,
     DEVICE_TYPE_PURE_COOL_LINK,
     DEVICE_TYPE_PURE_COOL_LINK_DESK,
@@ -29,6 +29,7 @@ from .dyson_360_eye import Dyson360Eye
 from .dyson_360_heurist import Dyson360Heurist
 from .dyson_device import DysonDevice
 from .dyson_pure_cool import DysonPureCool
+from .dyson_pure_cool import DysonPureCoolFormaldehyde
 from .dyson_pure_cool_link import DysonPureCoolLink
 from .dyson_pure_hot_cool import DysonPureHotCool
 from .dyson_pure_hot_cool_link import DysonPureHotCoolLink
@@ -49,15 +50,16 @@ def get_device(serial: str, credential: str, device_type: str) -> Optional[Dyson
         return DysonPureCoolLink(serial, credential, device_type)
     if device_type in [
         DEVICE_TYPE_PURE_COOL,
-        DEVICE_TYPE_PURE_COOL_2021,
         DEVICE_TYPE_PURE_COOL_DESK,
     ]:
         return DysonPureCool(serial, credential, device_type)
+    if device_type == DEVICE_TYPE_PURE_COOL_FORMALDEHYDE:
+        return DysonPureCoolFormaldehyde(serial, credential, device_type)
     if device_type == DEVICE_TYPE_PURE_HOT_COOL_LINK:
         return DysonPureHotCoolLink(serial, credential, device_type)
-    if device_type in [                                    
-        DEVICE_TYPE_PURE_HOT_COOL,                                                       
-        DEVICE_TYPE_PURE_HOT_COOL_NEW,                            
+    if device_type in [
+        DEVICE_TYPE_PURE_HOT_COOL,
+        DEVICE_TYPE_PURE_HOT_COOL_NEW,
     ]:
         return DysonPureHotCool(serial, credential, device_type)
     if device_type == DEVICE_TYPE_PURE_HUMIDIFY_COOL:

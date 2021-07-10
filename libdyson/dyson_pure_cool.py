@@ -175,3 +175,17 @@ class DysonPureCool(DysonPureCoolBase):
         else:
             oson = "OFF"
         self._set_configuration(oson=oson)
+
+
+class DysonPureCoolFormaldehyde(DysonPureCool):
+    """This model is compatible with PureCool but has one additional sensor."""
+
+    @property
+    def formaldehyde(self) -> Optional[int]:
+        """Return formaldehyde reading."""
+        # Dyson documentation for Dyson Pure Cool Formaldehyde refers to
+        # the formaldehyde reading as HCHO (pp5).
+        # https://www.dyson.com/content/dam/dyson/maintenance/user-guides/en_US/airtreatment/purifiers/TP09/497043-01.pdf
+        #
+        # H-CHO is also a common way to refer to formaldehyde.
+        int(self._get_field_value(self._status, "hcho"))

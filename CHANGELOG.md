@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.8
+
+- Identify 438E as Pure Cool Formaldehyde, and add formaldehyde env data (#12)
+
 ## 0.8.6
 
 - Add new device type Pure Hot+Cool New (527E) (#9)

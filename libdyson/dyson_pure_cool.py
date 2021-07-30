@@ -188,4 +188,7 @@ class DysonPureCoolFormaldehyde(DysonPureCool):
         # https://www.dyson.com/content/dam/dyson/maintenance/user-guides/en_US/airtreatment/purifiers/TP09/497043-01.pdf
         #
         # H-CHO is also a common way to refer to formaldehyde.
-        int(self._get_field_value(self._status, "hcho"))
+        #
+        # This is part of environmental data as per:
+        # https://github.com/seanrees/prometheus-dyson/issues/13#issue-923525150
+        return self._get_environmental_field_value("hcho")

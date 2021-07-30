@@ -111,7 +111,7 @@ class DysonAccount:
                 json=data,
                 headers=DYSON_API_HEADERS,
                 auth=self._auth if auth else None,
-                verify=self._CERT,
+                verify=False,
             )
         except requests.RequestException:
             raise DysonNetworkError

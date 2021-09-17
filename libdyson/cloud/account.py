@@ -33,8 +33,8 @@ API_PATH_DEVICES = "/v2/provisioningservice/manifest"
 
 FILE_PATH = pathlib.Path(__file__).parent.absolute()
 
-DYSON_CERT = f"{FILE_PATH}/certs/DigiCert-chain.crt"
-DYSON_CERT_CN = f"{FILE_PATH}/certs/DigiCert-cn-chain.crt"
+DYSON_CERT = f"{FILE_PATH}/certs/DigiCert-TLS-RSA-SHA256-2020-CA1_chain.crt"
+DYSON_CERT_CN = DYSON_CERT
 
 
 class HTTPBearerAuth(AuthBase):

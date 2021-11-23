@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.9
+
+- Fixed cloud identification support
+
 ## 0.8.8
 
 - Identify 438E as Pure Cool Formaldehyde, and add formaldehyde env data (#12)
@@ -122,5 +126,5 @@
 This is the first version of this library. Only Dyson 360 Eye robot vacuums are currently supported.
 
 - Dyson 360 Eye robot vacuum support added.
-- Cloud account support added. 
+- Cloud account support added.
 - `get_devices.py` script to get serial numbers and credentials from cloud account.

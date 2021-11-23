@@ -33,10 +33,6 @@ API_PATH_DEVICES = "/v2/provisioningservice/manifest"
 
 FILE_PATH = pathlib.Path(__file__).parent.absolute()
 
-DYSON_CERT = f"{FILE_PATH}/certs/DigiCert-chain.crt"
-DYSON_CERT_CN = f"{FILE_PATH}/certs/DigiCert-cn-chain.crt"
-
-
 class HTTPBearerAuth(AuthBase):
     """Attaches HTTP Bearder Authentication to the given Request object."""
 
@@ -109,9 +105,8 @@ class DysonAccount:
                 self._HOST + path,
                 params=params,
                 json=data,
-                headers=DYSON_API_HEADERS,
-                auth=self._auth if auth else None,
-                verify=self._CERT,
+                headers=DYSON_API_HEADERS,  
+                verify=True,
             )
         except requests.RequestException:
             raise DysonNetworkError

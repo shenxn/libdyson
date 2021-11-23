@@ -104,7 +104,8 @@ class DysonAccount:
                 self._HOST + path,
                 params=params,
                 json=data,
-                headers=DYSON_API_HEADERS,  
+                headers=DYSON_API_HEADERS,
+                auth=self._auth if auth else None,
                 verify=True,
             )
         except requests.RequestException:
@@ -125,6 +126,7 @@ class DysonAccount:
             data={"email": email},
             auth=False,
         )
+
         account_status = response.json()["accountStatus"]
         if account_status != "ACTIVE":
             raise DysonInvalidAccountStatus(account_status)

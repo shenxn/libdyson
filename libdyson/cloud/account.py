@@ -58,7 +58,6 @@ class DysonAccount:
     """Dyson account."""
 
     _HOST = DYSON_API_HOST
-    _CERT = DYSON_CERT
 
     def __init__(
         self,
@@ -180,7 +179,6 @@ class DysonAccountCN(DysonAccount):
     """Dyson account in Mainland China."""
 
     _HOST = DYSON_API_HOST_CN
-    _CERT = DYSON_CERT_CN
 
     def login_mobile_otp(self, mobile: str) -> Callable[[str], dict]:
         """Login using phone number and OTP code."""

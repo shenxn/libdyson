@@ -5,7 +5,7 @@ from typing import Callable
 
 import requests
 
-from libdyson.cloud.account import DYSON_API_HEADERS, DYSON_API_HOST, DYSON_CERT
+from libdyson.cloud.account import DYSON_API_HEADERS, DYSON_API_HOST
 
 
 class MockedRequests:
@@ -14,7 +14,6 @@ class MockedRequests:
     def __init__(self):
         """Initialize the mock."""
         self.host = DYSON_API_HOST
-        self.cert = DYSON_CERT
         self._handlers = {}
 
     @property
@@ -27,11 +26,10 @@ class MockedRequests:
         self._handlers[(method, path)] = handler
 
     def request(
-        self, method: str, url: str, headers=None, verify=None, **kwargs
+        self, method: str, url: str, headers=None, verify=True, **kwargs
     ) -> requests.Response:
         """Run mocked request function."""
         assert headers == DYSON_API_HEADERS
-        assert verify == self.cert
         assert url.startswith(self.host)
         path = url[len(self.host) :]
         response = requests.Response()

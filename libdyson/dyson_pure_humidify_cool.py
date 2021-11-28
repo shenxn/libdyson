@@ -99,3 +99,12 @@ class DysonPureHumidifyCool(DysonPureCoolBase):
     def set_water_hardness(self, water_hardness: WaterHardness) -> None:
         """Set water hardness."""
         self._set_configuration(wath=WATER_HARDNESS_ENUM_TO_STR[water_hardness])
+
+
+class DysonPurifierHumidifyCoolFormaldehyde(DysonPureHumidifyCool):
+    """Dyson Purifier Humidify+Cool Formaldehyde device."""
+
+    @property
+    def formaldehyde(self) -> int:
+        """Return formaldehyde reading."""
+        return self._get_environmental_field_value("hcho")

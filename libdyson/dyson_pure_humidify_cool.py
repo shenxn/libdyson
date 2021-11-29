@@ -105,6 +105,6 @@ class DysonPurifierHumidifyCoolFormaldehyde(DysonPureHumidifyCool):
     """Dyson Purifier Humidify+Cool Formaldehyde device."""
 
     @property
-    def formaldehyde(self) -> int:
+    def formaldehyde(self):
         """Return formaldehyde reading."""
-        return self._get_environmental_field_value("hcho")
+        return int(self._get_environmental_field_value("hcho"))

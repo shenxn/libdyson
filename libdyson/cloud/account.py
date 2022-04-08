@@ -21,7 +21,7 @@ from .device_info import DysonDeviceInfo
 DYSON_API_HOST = "https://appapi.cp.dyson.com"
 DYSON_API_HOST_CN = "https://appapi.cp.dyson.cn"
 DYSON_API_HEADERS = {
-    "User-Agent": "Dalvik/2.1.0 (Linux; U; Android 6.0; Android SDK built for x86_64 Build/MASTER)"
+    "User-Agent": "android client"
 }
 
 API_PATH_USER_STATUS = "/v3/userregistration/email/userstatus"
@@ -127,7 +127,9 @@ class DysonAccount:
             auth=False,
         )
 
-        account_status = response.json()["accountStatus"]
+        jsonRes = response.json()
+
+        account_status = jsonRes["accountStatus"]
         if account_status != "ACTIVE":
             raise DysonInvalidAccountStatus(account_status)
 

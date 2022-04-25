@@ -3,7 +3,7 @@
 import base64
 import hashlib
 import re
-import time
+from datetime import datetime
 from typing import Tuple
 
 from .const import DEVICE_TYPE_360_EYE
@@ -18,7 +18,12 @@ _DEVICE_TYPE_MAP = {
 
 def mqtt_time():
     """Return current time string for mqtt messages."""
-    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    return mqtt_time_from_datetime(datetime.utcnow())
+
+
+def mqtt_time_from_datetime(dt: datetime):
+    """Return time string for mqtt messages."""
+    return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def get_credential_from_wifi_password(wifi_password: str) -> str:

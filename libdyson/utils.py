@@ -32,13 +32,13 @@ def get_mqtt_info_from_wifi_info(
     wifi_ssid: str, wifi_password: str
 ) -> Tuple[str, str, str]:
     """Get MQTT information from WiFi information."""
-    result = re.match(r"^(360EYE-)?(?P<serial>[0-9A-Z]{3}-[A-Z]{2}-[0-9A-Z]{8})$", wifi_ssid)
+    result = re.match(r"^(360EYE-)?(?P<serial>[0-9A-Z]{3}-[A-Z]{2}-[0-9A-Z]{8,})$", wifi_ssid)
     if result is not None:
         serial = result.group("serial")
         device_type = DEVICE_TYPE_360_EYE
     else:
         result = re.match(
-            r"^DYSON-([0-9A-Z]{3}-[A-Z]{2}-[0-9A-Z]{8})-([0-9]{3}[A-Z]?)$", wifi_ssid
+            r"^DYSON-([0-9A-Z]{3}-[A-Z]{2}-[0-9A-Z]{8,})-([0-9]{3}[A-Z]?)$", wifi_ssid
         )
         if result is not None:
             serial = result.group(1)

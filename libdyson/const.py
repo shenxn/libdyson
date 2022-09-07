@@ -17,16 +17,16 @@ DEVICE_TYPE_PURE_HOT_COOL_NEW = "527E"
 DEVICE_TYPE_NAMES = {
     DEVICE_TYPE_360_EYE: "360 Eye robot vacuum",
     DEVICE_TYPE_360_HEURIST: "360 Heurist robot vacuum",
-    DEVICE_TYPE_PURE_COOL: "Pure Cool",
-    DEVICE_TYPE_PURE_COOL_FORMALDEHYDE: "Pure Cool Formaldehyde",
-    DEVICE_TYPE_PURE_COOL_DESK: "Pure Cool Desk",
-    DEVICE_TYPE_PURE_COOL_LINK: "Pure Cool Link",
-    DEVICE_TYPE_PURE_COOL_LINK_DESK: "Pure Cool Link Desk",
-    DEVICE_TYPE_PURE_HOT_COOL: "Pure Hot+Cool",
-    DEVICE_TYPE_PURE_HOT_COOL_NEW: "Pure Hot+Cool (New)",
-    DEVICE_TYPE_PURE_HOT_COOL_LINK: "Pure Hot+Cool Link",
-    DEVICE_TYPE_PURE_HUMIDIFY_COOL: "Pure Humidify+Cool",
-    DEVICE_TYPE_PURIFIER_HUMIDIFY_COOL_FORMALDEHYDE: "Purifier Humidify+Cool Formaldehyde",
+    DEVICE_TYPE_PURE_COOL: "Pure Cool (TP04/TP07)",
+    DEVICE_TYPE_PURE_COOL_FORMALDEHYDE: "Pure Cool Formaldehyde (TP09)",
+    DEVICE_TYPE_PURE_COOL_DESK: "Pure Cool Purifying Desk (DP04)",
+    DEVICE_TYPE_PURE_COOL_LINK: "Pure Cool Link (TP02)",
+    DEVICE_TYPE_PURE_COOL_LINK_DESK: "Pure Cool Desk (DP01)",
+    DEVICE_TYPE_PURE_HOT_COOL: "Pure Hot+Cool (HP04)",
+    DEVICE_TYPE_PURE_HOT_COOL_NEW: "Purifier Hot+Cool Formaldehyde (HP07/HP09)",
+    DEVICE_TYPE_PURE_HOT_COOL_LINK: "Pure Hot+Cool Link (HP02)",
+    DEVICE_TYPE_PURE_HUMIDIFY_COOL: "Pure Humidify+Cool (PH01)",
+    DEVICE_TYPE_PURIFIER_HUMIDIFY_COOL_FORMALDEHYDE: "Pure Humidify+Cool Formaldehyde (PH03/PH04)",
 }
 
 ENVIRONMENTAL_OFF = -1
